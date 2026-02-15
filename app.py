@@ -7,9 +7,8 @@ from db.database import engine, Base
 from models import news_model
 
 
-
 @asynccontextmanager
-async def lifespan():
+async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
@@ -30,7 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 app.include_router(auth_router)
 app.include_router(news_router)

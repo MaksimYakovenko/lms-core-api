@@ -1,6 +1,6 @@
 import asyncio
 from db.database import engine, Base
-from models import news_model
+from models import news_model, auth_model
 
 
 async def main():
