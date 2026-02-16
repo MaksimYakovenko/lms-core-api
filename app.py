@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 from routers.news import router as news_router
 from routers.auth import router as auth_router
 from db.database import engine, Base
-# Імпортуємо всі моделі, щоб SQLAlchemy знав про них
 from models.auth_model import User
 from models.news_model import News
 

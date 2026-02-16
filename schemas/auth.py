@@ -6,19 +6,14 @@ _password_pattern = re.compile(
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$"
 )
 
-
-class SignUpIn(BaseModel):
-    email: EmailStr
-    first_name: str = Field(min_length=1, max_length=100)
-    last_name: str = Field(min_length=1, max_length=100)
-    password: str = Field(min_length=8, max_length=64)
-
-
 class SignUpRequest(BaseModel):
     email: EmailStr
     first_name: str = Field(min_length=2, max_length=50)
     last_name: str = Field(min_length=2, max_length=50)
-    password: str = Field(min_length=8, max_length=64)
+    password: str = Field(min_length=8, max_length=16)
+    captcha_id: str
+    captcha_answer: str
+
 
     @field_validator("first_name", "last_name")
     def validate_name(cls, value):
@@ -44,6 +39,12 @@ class SignUpRequest(BaseModel):
 class SignUpResponse(BaseModel):
     message: str
 
-class TokenOut(BaseModel):
+
+class SignInRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class SignInResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
