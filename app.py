@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from routers.news import router as news_router
 from routers.auth import router as auth_router
+from routers.users import router as users_router
 from db.database import engine, Base
 from models.auth_model import User
 from models.news_model import News
@@ -33,3 +34,4 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(news_router)
+app.include_router(users_router)
