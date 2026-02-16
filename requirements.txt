@@ -10,6 +10,8 @@ python-multipart==0.0.22
 python-jose[cryptography]==3.4.0
 passlib==1.7.4
 email-validator==2.1.0
+captcha==0.7.1
+
 
 dotenv~=0.9.9
 jupyterlab-pygments~=0.2.2
@@ -19,3 +21,4 @@ attrs~=23.1.0
 protobuf~=3.20.3
 cryptography~=42.0.8
 jose~=1.0.0
+cachetools~=6.2.2

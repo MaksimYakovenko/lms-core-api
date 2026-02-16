@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
 from schemas.auth import SignUpRequest, SignUpResponse
-from services.auth_service import create_user
+from services.auth_service import create_user, generate_captcha
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -32,5 +32,11 @@ async def sign_up(payload: SignUpRequest, db: AsyncSession = Depends(get_db)):
         password=payload.password,
     )
     return {"message": "User created"}
+
+
+@router.get("/captcha")
+async def get_captcha():
+    captcha_id, image_base64 = await generate_captcha()
+    return {"captcha_id": captcha_id, "image": image_base64}
 
 

@@ -18,7 +18,7 @@ class SignUpRequest(BaseModel):
     email: EmailStr
     first_name: str = Field(min_length=2, max_length=50)
     last_name: str = Field(min_length=2, max_length=50)
-    password: str = Field(min_length=8, max_length=16)
+    password: str = Field(min_length=8, max_length=64)
 
     @field_validator("first_name", "last_name")
     def validate_name(cls, value):
