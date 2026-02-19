@@ -1,15 +1,15 @@
 from models.auth_model import User
-from utils.jwt import create_access_token
+from utils.jwt import create_access_token, create_refresh_token
 from utils.security import verify_password
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from services.user_service.extract_roles import update_last_login
+from utils.extract_roles import update_last_login
 
 
 class SignInService:
     @staticmethod
-    async def sign_in(db: AsyncSession, *, email: str, password: str) -> str:
+    async def sign_in(db: AsyncSession, *, email: str, password: str) -> dict:
         res = await db.execute(select(User).where(User.email == email))
         user = res.scalar_one_or_none()
         if not user or not verify_password(password, user.password):
@@ -22,8 +22,13 @@ class SignInService:
 
         await db.commit()
 
-        token = create_access_token(str(user.id))
-        return token
+        access_token = create_access_token(str(user.id))
+        refresh_token = create_refresh_token(str(user.id))
+
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }
 
 
 sign_in_service = SignInService()

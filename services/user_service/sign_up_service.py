@@ -5,7 +5,7 @@ from datetime import date
 from models.auth_model import User
 from utils.security import hash_password
 from services.user_service.captcha_service import captcha_service
-from services.user_service.extract_roles import extract_role
+from utils.extract_roles import extract_role
 
 
 class SignUpService:
