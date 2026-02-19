@@ -2,6 +2,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.admin_model import Admins
 from models.teacher_model import Teachers
+from models.student_model import Students
 from models.auth_model import User
 from datetime import datetime, timezone
 
@@ -36,6 +37,18 @@ async def extract_role(db: AsyncSession,
             .where(Admins.email == email)
             .values(name=full_name)
         )
+    else:
+        student_res = await db.execute(
+            select(Students).where(Students.email == email))
+        existing_student = student_res.scalar_one_or_none()
+
+        if not existing_student:
+            student = Students(
+                email=email,
+                name=full_name,
+                role="STUDENT"
+            )
+            db.add(student)
 
     return role
 
@@ -54,5 +67,11 @@ async def update_last_login(db: AsyncSession, user: User) -> None:
         await db.execute(
             update(Admins)
             .where(Admins.email == user.email)
+            .values(last_login=current_time)
+        )
+    elif user.role == "STUDENT":
+        await db.execute(
+            update(Students)
+            .where(Students.email == user.email)
             .values(last_login=current_time)
         )

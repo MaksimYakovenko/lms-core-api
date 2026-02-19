@@ -12,7 +12,7 @@ from services.user_service.sign_in_service import sign_in_service
 from services.user_service.refresh_token_service import refresh_token_service
 from services.user_service.captcha_service import captcha_cache, captcha_service
 from utils.jwt import create_access_token
-from utils.dependencies import get_current_user
+from dependencies.current_user import get_current_user
 from models.auth_model import User
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

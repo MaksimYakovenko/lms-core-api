@@ -6,11 +6,13 @@ from routers.auth import router as auth_router
 from routers.users import router as users_router
 from routers.teachers import router as teachers_router
 from routers.admins import router as admins_router
+from routers.students import router as students_router
 from db.database import engine, Base
 from models.auth_model import User
 from models.news_model import News
 from models.admin_model import Admins
 from models.teacher_model import Teachers
+from models.student_model import Students
 
 
 @asynccontextmanager
@@ -41,3 +43,4 @@ app.include_router(news_router)
 app.include_router(users_router)
 app.include_router(admins_router)
 app.include_router(teachers_router)
+app.include_router(students_router)
