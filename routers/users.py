@@ -6,6 +6,7 @@ from models.news_model import News
 from dependencies.current_user import get_current_user
 from schemas.users import UserResponse
 from models.auth_model import User
+from dependencies.require_roles import require_roles
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

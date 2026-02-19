@@ -7,11 +7,13 @@ from models.teacher_model import Teachers
 from schemas.teachers import TeacherCreateRequest, TeacherCreateResponse, \
     TeacherGetResponse
 from services.teacher_service.teachers_service import teacher_service
+from dependencies.require_roles import require_roles
 
 router = APIRouter(prefix="/teachers", tags=["Teachers"])
 
 
-@router.post("/create_teacher", response_model=TeacherCreateResponse)
+@router.post("/create_teacher", response_model=TeacherCreateResponse,
+             dependencies=[Depends(require_roles("ADMIN"))])
 async def create_teacher(payload: TeacherCreateRequest,
                          db: AsyncSession = Depends(get_db)):
     await teacher_service.create_teacher(
@@ -26,7 +28,8 @@ async def create_teacher(payload: TeacherCreateRequest,
     )
 
 
-@router.get("/get_teachers", response_model=list[TeacherGetResponse])
+@router.get("/get_teachers", response_model=list[TeacherGetResponse],
+            dependencies=[Depends(require_roles("ADMIN"))])
 async def get_teachers(db: AsyncSession = Depends(get_db)):
     teachers = await teacher_service.get_teachers(db)
     return teachers

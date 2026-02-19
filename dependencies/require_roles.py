@@ -1,1 +1,14 @@
-#TODO: Implement this dependency to check if the user has the required roles to access a specific endpoint.
+from fastapi import Depends, HTTPException
+from dependencies.current_user import get_current_user
+
+
+def require_roles(*allowed_roles: str):
+    def role_checker(current_user=Depends(get_current_user)):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=403,
+                detail="Access denied"
+            )
+        return current_user
+
+    return role_checker
