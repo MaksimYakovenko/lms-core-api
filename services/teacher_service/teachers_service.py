@@ -32,5 +32,10 @@ class TeacherService:
         await db.refresh(teacher)
         return teacher
 
+    @staticmethod
+    async def get_teachers(db: AsyncSession) -> list[Teachers]:
+        res = await db.execute(select(Teachers))
+        teachers = res.scalars().all()
+        return teachers
 
 teacher_service = TeacherService()

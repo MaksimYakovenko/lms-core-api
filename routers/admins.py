@@ -22,3 +22,8 @@ async def create_admin(payload: AdminCreateRequest,
         status_code=status.HTTP_201_CREATED,
         content={"message": "Admin is created"}
     )
+
+@router.get("/get_admins", response_model=list[AdminGetResponse])
+async def get_admins(db: AsyncSession = Depends(get_db)):
+    admins = await admin_service.get_admins(db)
+    return admins

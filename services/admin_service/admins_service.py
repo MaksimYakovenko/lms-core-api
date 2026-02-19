@@ -7,13 +7,12 @@ from models.admin_model import Admins
 class AdminService:
     @staticmethod
     async def create_admin(db: AsyncSession,
-                          *,
-                          email: str,
-                          first_name: str,
-                          last_name: str,
-                          role: str,
-                          ) -> Admins:
-
+                           *,
+                           email: str,
+                           first_name: str,
+                           last_name: str,
+                           role: str,
+                           ) -> Admins:
         res = await db.execute(select(Admins).where(Admins.email == email))
         if res.scalar_one_or_none():
             raise HTTPException(
@@ -32,6 +31,12 @@ class AdminService:
         await db.commit()
         await db.refresh(admin)
         return admin
+
+    @staticmethod
+    async def get_admins(db: AsyncSession) -> list[Admins]:
+        res = await db.execute(select(Admins))
+        admins = res.scalars().all()
+        return admins
 
 
 admin_service = AdminService()
