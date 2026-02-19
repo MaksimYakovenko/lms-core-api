@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator
+from datetime import date
 import re
 
 _name_pattern = re.compile(r"^[A-Za-z'-]+$")
@@ -11,6 +12,7 @@ class SignUpRequest(BaseModel):
     first_name: str = Field(min_length=2, max_length=50)
     last_name: str = Field(min_length=2, max_length=50)
     password: str = Field(min_length=8, max_length=16)
+    birthday: date
     captcha_id: str
     captcha_answer: str
 

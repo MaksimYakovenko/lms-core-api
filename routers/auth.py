@@ -32,6 +32,7 @@ async def sign_up(payload: SignUpRequest, db: AsyncSession = Depends(get_db)):
         first_name=payload.first_name,
         last_name=payload.last_name,
         password=payload.password,
+        birthday=payload.birthday,
         captcha_id=payload.captcha_id,
         captcha_answer=payload.captcha_answer,
     )

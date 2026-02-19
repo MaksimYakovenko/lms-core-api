@@ -1,5 +1,6 @@
-from sqlalchemy import String, Integer
+from sqlalchemy import String, Integer, Date
 from sqlalchemy.orm import Mapped, mapped_column
+from datetime import date
 from db import Base
 
 
@@ -22,6 +23,11 @@ class User(Base):
 
     last_name: Mapped[str] = mapped_column(
         String(100),
+        nullable=False
+    )
+
+    birthday: Mapped[date] = mapped_column(
+        Date,
         nullable=False
     )
 
