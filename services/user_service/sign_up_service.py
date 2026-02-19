@@ -5,6 +5,7 @@ from datetime import date
 from models.auth_model import User
 from utils.security import hash_password
 from services.user_service.captcha_service import captcha_service
+from services.user_service.extract_roles import extract_role
 
 
 class SignUpService:
@@ -28,12 +29,20 @@ class SignUpService:
                 detail="Email already registered"
             )
 
+        role = await extract_role(
+            db,
+            email=email,
+            first_name=first_name,
+            last_name=last_name
+        )
+
         user = User(
             email=email,
             first_name=first_name,
             last_name=last_name,
             password=hash_password(password),
-            birthday=birthday
+            birthday=birthday,
+            role=role
         )
 
         db.add(user)

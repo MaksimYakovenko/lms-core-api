@@ -4,6 +4,7 @@ from utils.security import verify_password
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from services.user_service.extract_roles import update_last_login
 
 
 class SignInService:
@@ -16,6 +17,11 @@ class SignInService:
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
+
+        await update_last_login(db, user)
+
+        await db.commit()
+
         token = create_access_token(str(user.id))
         return token
 

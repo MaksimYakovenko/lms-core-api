@@ -9,6 +9,8 @@ from routers.admins import router as admins_router
 from db.database import engine, Base
 from models.auth_model import User
 from models.news_model import News
+from models.admin_model import Admins
+from models.teacher_model import Teachers
 
 
 @asynccontextmanager

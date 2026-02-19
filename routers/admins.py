@@ -14,8 +14,7 @@ async def create_admin(payload: AdminCreateRequest,
     await admin_service.create_admin(
         db,
         email=payload.email,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
+        name="Unregistered",
         role=payload.role
     )
     return JSONResponse(

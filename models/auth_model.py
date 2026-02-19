@@ -1,6 +1,7 @@
-from sqlalchemy import String, Integer, Date
+from sqlalchemy import String, Integer, Date, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
-from datetime import date
+from datetime import date, datetime
+from typing import Optional
 from db import Base
 
 
@@ -35,3 +36,15 @@ class User(Base):
         String(255),
         nullable=False
     )
+
+    role: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default="STUDENT"
+    )
+
+    last_login: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True
+    )
+

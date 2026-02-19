@@ -6,6 +6,8 @@ _name_pattern = re.compile(r"^[A-Za-z'-]+$")
 _password_pattern = re.compile(
     r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,16}$"
 )
+_birthday_pattern = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+
 
 class SignUpRequest(BaseModel):
     email: EmailStr
@@ -15,7 +17,6 @@ class SignUpRequest(BaseModel):
     birthday: date
     captcha_id: str
     captcha_answer: str
-
 
     @field_validator("first_name", "last_name")
     def validate_name(cls, value):
@@ -35,6 +36,14 @@ class SignUpRequest(BaseModel):
             raise ValueError(
                 "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character"
             )
+        return value
+
+    @field_validator("birthday")
+    def validate_birthday(cls, value):
+        if value is None:
+            return value
+        if not _birthday_pattern.match(value.isoformat()):
+            raise ValueError("Birthday must be in the format YYYY-MM-DD")
         return value
 
 

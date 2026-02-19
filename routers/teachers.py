@@ -17,8 +17,7 @@ async def create_teacher(payload: TeacherCreateRequest,
     await teacher_service.create_teacher(
         db,
         email=payload.email,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
+        name="Unregistered",
         role=payload.role
     )
     return JSONResponse(

@@ -1,10 +1,9 @@
 from pydantic import BaseModel, Field, EmailStr
-from typing import Literal
+from typing import Literal, Optional
+from datetime import datetime
 
 class AdminCreateRequest(BaseModel):
     email: EmailStr
-    first_name: str = Field(min_length=2, max_length=50)
-    last_name: str = Field(min_length=2, max_length=50)
     role: Literal["ADMIN"] = "ADMIN"
 
 
@@ -14,6 +13,6 @@ class AdminCreateResponse(BaseModel):
 
 class AdminGetResponse(BaseModel):
     email: EmailStr
-    first_name: str = Field(min_length=2, max_length=50)
-    last_name: str = Field(min_length=2, max_length=50)
+    name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
+    last_login: Optional[datetime] = None

@@ -9,8 +9,7 @@ class AdminService:
     async def create_admin(db: AsyncSession,
                            *,
                            email: str,
-                           first_name: str,
-                           last_name: str,
+                           name: str,
                            role: str,
                            ) -> Admins:
         res = await db.execute(select(Admins).where(Admins.email == email))
@@ -22,8 +21,7 @@ class AdminService:
 
         admin = Admins(
             email=email,
-            first_name=first_name,
-            last_name=last_name,
+            name=name,
             role=role
         )
 
