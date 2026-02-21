@@ -21,46 +21,70 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/sign-in", response_model=SignInResponse)
 async def sign_in(payload: SignInRequest, db: AsyncSession = Depends(get_db)):
-    tokens = await sign_in_service.sign_in(
-        db,
-        email=payload.email,
-        password=payload.password
-    )
-    return SignInResponse(**tokens)
+    try:
+        tokens = await sign_in_service.sign_in(
+            db,
+            email=payload.email,
+            password=payload.password
+        )
+        return SignInResponse(**tokens)
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 
 @router.post("/sign-up", response_model=SignUpResponse)
 async def sign_up(payload: SignUpRequest, db: AsyncSession = Depends(get_db)):
-    await auth_service.create_user(
-        db,
-        email=payload.email,
-        first_name=payload.first_name,
-        last_name=payload.last_name,
-        password=payload.password,
-        birthday=payload.birthday,
-        captcha_id=payload.captcha_id,
-        captcha_answer=payload.captcha_answer,
-    )
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": "User created"}
-    )
+    try:
+        await auth_service.create_user(
+            db,
+            email=payload.email,
+            first_name=payload.first_name,
+            last_name=payload.last_name,
+            password=payload.password,
+            birthday=payload.birthday,
+            captcha_id=payload.captcha_id,
+            captcha_answer=payload.captcha_answer,
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "User created"}
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 
 @router.get("/captcha")
 async def get_captcha():
-    captcha_id, image_base64 = await captcha_service.generate_captcha()
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={"captcha_id": captcha_id, "image": image_base64}
-    )
+    try:
+        captcha_id, image_base64 = await captcha_service.generate_captcha()
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"captcha_id": captcha_id, "image": image_base64}
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 
 @router.post("/refresh", response_model=RefreshTokenResponse)
 async def refresh_token(payload: RefreshTokenRequest,
                         db: AsyncSession = Depends(get_db)):
-    tokens = await refresh_token_service.refresh(
-        db,
-        refresh_token=payload.refresh_token
-    )
-    return RefreshTokenResponse(**tokens)
+    try:
+        tokens = await refresh_token_service.refresh(
+            db,
+            refresh_token=payload.refresh_token
+        )
+        return RefreshTokenResponse(**tokens)
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )

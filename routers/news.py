@@ -16,7 +16,7 @@ async def get_news_list(db: AsyncSession = Depends(get_db)):
 @router.get("/parse/titles")
 async def parse_titles():
     try:
-        parser = NewsParser()
+        parser = NewsService()
         titles = await parser.fetch_titles()
         return {
             "success": True,
@@ -25,29 +25,3 @@ async def parse_titles():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/parse/titles-detailed")
-async def parse_titles_detailed():
-    """
-    Парсить h5.lp-box-title з сайту mechmat.knu.ua з додатковою інформацією
-
-    Returns:
-        List[dict]: Список заголовків з деталями
-    """
-    try:
-        parser = NewsParser()
-        titles = await parser.fetch_titles_with_details()
-        return {
-            "success": True,
-            "count": len(titles),
-            "data": titles
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/{id}")
-async def get_news_by_id():
-    return {
-        "status": "unhealthy",
-        "service": "lms-core-api"
-    }

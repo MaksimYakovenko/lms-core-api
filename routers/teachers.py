@@ -16,20 +16,31 @@ router = APIRouter(prefix="/teachers", tags=["Teachers"])
              dependencies=[Depends(require_roles("ADMIN"))])
 async def create_teacher(payload: TeacherCreateRequest,
                          db: AsyncSession = Depends(get_db)):
-    await teacher_service.create_teacher(
-        db,
-        email=payload.email,
-        name="Unregistered",
-        role=payload.role
-    )
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": "Teacher is created"}
-    )
-
+    try:
+        await teacher_service.create_teacher(
+            db,
+            email=payload.email,
+            name="Unregistered",
+            role=payload.role
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "Teacher is created"}
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 @router.get("/get_teachers", response_model=list[TeacherGetResponse],
             dependencies=[Depends(require_roles("ADMIN"))])
 async def get_teachers(db: AsyncSession = Depends(get_db)):
-    teachers = await teacher_service.get_teachers(db)
-    return teachers
+    try:
+        teachers = await teacher_service.get_teachers(db)
+        return teachers
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )

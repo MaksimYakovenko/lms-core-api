@@ -14,20 +14,32 @@ router = APIRouter(prefix="/admins", tags=["Admins"])
              dependencies=[Depends(require_roles("ADMIN"))])
 async def create_admin(payload: AdminCreateRequest,
                        db: AsyncSession = Depends(get_db)):
-    await admin_service.create_admin(
-        db,
-        email=payload.email,
-        name="Unregistered",
-        role=payload.role
-    )
-    return JSONResponse(
-        status_code=status.HTTP_201_CREATED,
-        content={"message": "Admin is created"}
-    )
+    try:
+        await admin_service.create_admin(
+            db,
+            email=payload.email,
+            name="Unregistered",
+            role=payload.role
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "Admin is created"}
+        )
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 
 @router.get("/get_admins", response_model=list[AdminGetResponse],
             dependencies=[Depends(require_roles("ADMIN"))])
 async def get_admins(db: AsyncSession = Depends(get_db)):
-    admins = await admin_service.get_admins(db)
-    return admins
+    try:
+        admins = await admin_service.get_admins(db)
+        return admins
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
