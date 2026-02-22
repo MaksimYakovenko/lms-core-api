@@ -10,7 +10,8 @@ from dependencies.require_roles import require_roles
 router = APIRouter(prefix="/admins", tags=["Admins"])
 
 
-@router.post("/create_admin", response_model=AdminCreateResponse, )
+@router.post("/create_admin", response_model=AdminCreateResponse,
+             dependencies=[Depends(require_roles("ADMIN"))])
 async def create_admin(payload: AdminCreateRequest,
                        db: AsyncSession = Depends(get_db)):
     try:
@@ -57,6 +58,7 @@ Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
+
 
 @router.delete("/delete_admin/{id}",
                dependencies=[Depends(require_roles("ADMIN"))])

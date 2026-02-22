@@ -7,13 +7,16 @@ from routers.users import router as users_router
 from routers.teachers import router as teachers_router
 from routers.admins import router as admins_router
 from routers.students import router as students_router
+from routers.groups import router as groups_router
+from routers.subjects import router as subjects_router
 from db.database import engine, Base
 from models.auth_model import User
 from models.news_model import News
 from models.admin_model import Admins
 from models.teacher_model import Teachers
 from models.student_model import Students
-
+from models.group_model import Groups
+# from models.subject_model import Subjects
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -44,3 +47,5 @@ app.include_router(users_router)
 app.include_router(admins_router)
 app.include_router(teachers_router)
 app.include_router(students_router)
+app.include_router(groups_router)
+app.include_router(subjects_router)
