@@ -6,5 +6,5 @@ class News(Base):
     __tablename__ = "news"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    title: Mapped[str] = mapped_column(String(100))
-    image_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    title: Mapped[str] = mapped_column(String(10000))
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
