@@ -18,6 +18,12 @@ class SignInService:
                 detail="Invalid email or password"
             )
 
+        if user.status == "BLOCKED":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your account has been blocked. Please contact administrator."
+            )
+
         await update_last_login(db, user)
 
         await db.commit()

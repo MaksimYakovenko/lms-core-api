@@ -43,6 +43,12 @@ class User(Base):
         server_default="STUDENT"
     )
 
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        server_default="ACTIVE"
+    )
+
     last_login: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True

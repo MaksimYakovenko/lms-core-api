@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Optional
 from db.database import Base
 
+
 class Admins(Base):
     __tablename__ = "admins"
 
@@ -11,4 +12,6 @@ class Admins(Base):
     name: Mapped[str] = mapped_column(String(50))
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     role: Mapped[str] = mapped_column(String(20))
-    last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str] = mapped_column(String(20), server_default="ACTIVE")
+    last_login: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True)
