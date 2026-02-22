@@ -36,4 +36,36 @@ class TeacherService:
         teachers = res.scalars().all()
         return teachers
 
+    @staticmethod
+    async def delete_teacher(db: AsyncSession, teacher_id: int):
+        res = await db.execute(
+            select(Teachers).where(Teachers.id == teacher_id))
+        teacher = res.scalar_one_or_none()
+        if teacher is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teacher not found"
+            )
+
+        await db.delete(teacher)
+        await db.commit()
+
+    @staticmethod
+    async def update_teacher(db: AsyncSession, teacher_id: int, name: str):
+        res = await db.execute(
+            select(Teachers).where(Teachers.id == teacher_id))
+        teacher = res.scalar_one_or_none()
+        if teacher is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teacher not found"
+            )
+
+        teacher.name = name
+        db.add(teacher)
+        await db.commit()
+        await db.refresh(teacher)
+        return teacher
+
+
 teacher_service = TeacherService()

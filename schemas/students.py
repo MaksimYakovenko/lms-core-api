@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class StudentGetResponse(BaseModel):
+    id: int
     email: EmailStr
     name: str = Field(min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)

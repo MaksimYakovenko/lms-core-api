@@ -13,6 +13,7 @@ class TeacherCreateResponse(BaseModel):
 
 
 class TeacherGetResponse(BaseModel):
+    id: int
     email: EmailStr
     name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)

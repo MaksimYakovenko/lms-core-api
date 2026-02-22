@@ -10,8 +10,7 @@ from dependencies.require_roles import require_roles
 router = APIRouter(prefix="/admins", tags=["Admins"])
 
 
-@router.post("/create_admin", response_model=AdminCreateResponse,
-             dependencies=[Depends(require_roles("ADMIN"))])
+@router.post("/create_admin", response_model=AdminCreateResponse, )
 async def create_admin(payload: AdminCreateRequest,
                        db: AsyncSession = Depends(get_db)):
     try:
@@ -38,6 +37,36 @@ async def get_admins(db: AsyncSession = Depends(get_db)):
     try:
         admins = await admin_service.get_admins(db)
         return admins
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.put("/update_admin/{id}",
+            dependencies=[Depends(require_roles("ADMIN"))],
+            response_model=AdminGetResponse)
+async def update_admin(admin_id: int, name: str, db: AsyncSession =
+Depends(get_db)):
+    try:
+        admin = await admin_service.update_admin(db, admin_id, name)
+        return admin
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+@router.delete("/delete_admin/{id}",
+               dependencies=[Depends(require_roles("ADMIN"))])
+async def delete_admin(admin_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        await admin_service.delete_admin(db, admin_id)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Admin is deleted"}
+        )
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

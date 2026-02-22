@@ -33,12 +33,44 @@ async def create_teacher(payload: TeacherCreateRequest,
             content={"message": "Internal server error"}
         )
 
+
 @router.get("/get_teachers", response_model=list[TeacherGetResponse],
             dependencies=[Depends(require_roles("ADMIN"))])
 async def get_teachers(db: AsyncSession = Depends(get_db)):
     try:
         teachers = await teacher_service.get_teachers(db)
         return teachers
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.put("/update_teacher/{id}",
+            dependencies=[Depends(require_roles("ADMIN"))],
+            response_model=TeacherGetResponse)
+async def update_teacher(teacher_id: int, name: str, db: AsyncSession =
+Depends(get_db)):
+    try:
+        teacher = await teacher_service.update_teacher(db, teacher_id, name)
+        return teacher
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.delete("/delete_teacher/{id}", dependencies=[Depends(require_roles(
+    "ADMIN"))])
+async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        await teacher_service.delete_teacher(db, teacher_id)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Teacher is deleted"}
+        )
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

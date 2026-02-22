@@ -36,5 +36,36 @@ class AdminService:
         admins = res.scalars().all()
         return admins
 
+    @staticmethod
+    async def delete_admin(db: AsyncSession, admin_id: int):
+        res = await db.execute(
+            select(Admins).where(Admins.id == admin_id))
+        admin = res.scalar_one_or_none()
+        if admin is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin not found"
+            )
+
+        await db.delete(admin)
+        await db.commit()
+
+    @staticmethod
+    async def update_admin(db: AsyncSession, admin_id: int, name: str):
+        res = await db.execute(
+            select(Admins).where(Admins.id == admin_id))
+        admin = res.scalar_one_or_none()
+        if admin is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Admin not found"
+            )
+
+        admin.name = name
+        db.add(admin)
+        await db.commit()
+        await db.refresh(admin)
+        return admin
+
 
 admin_service = AdminService()
