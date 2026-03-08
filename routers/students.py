@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
-from schemas.students import StudentGetResponse
+from schemas.students import StudentGetResponse, AssignStudentToGroupRequest, AssignStudentToGroupResponse
 from services.student_service.students_service import students_service
 from dependencies.require_roles import require_roles
 from db.database import get_db
@@ -54,3 +54,25 @@ async def update_student(student_id: int, name: str, db: AsyncSession = Depends(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
+
+
+@router.put("/assign_to_group",
+            dependencies=[Depends(require_roles("ADMIN"))],
+            response_model=AssignStudentToGroupResponse)
+async def assign_student_to_group(
+    request: AssignStudentToGroupRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    try:
+        student = await students_service.assign_student_to_group(
+            db, request.student_id, request.group_id
+        )
+        return student
+    except HTTPException as e:
+        raise e
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
