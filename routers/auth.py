@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
@@ -28,6 +28,8 @@ async def sign_in(payload: SignInRequest, db: AsyncSession = Depends(get_db)):
             password=payload.password
         )
         return SignInResponse(**tokens)
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -52,6 +54,8 @@ async def sign_up(payload: SignUpRequest, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_201_CREATED,
             content={"message": "User created"}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -67,6 +71,8 @@ async def get_captcha():
             status_code=status.HTTP_200_OK,
             content={"captcha_id": captcha_id, "image": image_base64}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -83,6 +89,8 @@ async def refresh_token(payload: RefreshTokenRequest,
             refresh_token=payload.refresh_token
         )
         return RefreshTokenResponse(**tokens)
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
