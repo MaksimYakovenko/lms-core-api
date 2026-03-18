@@ -13,6 +13,14 @@ class StudentService:
         return students
 
     @staticmethod
+    async def create_student(db: AsyncSession, email: str, name: str, role: str) -> Students:
+        new_student = Students(email=email, name=name, role=role)
+        db.add(new_student)
+        await db.commit()
+        await db.refresh(new_student)
+        return new_student
+
+    @staticmethod
     async def delete_student(db: AsyncSession, student_id: int):
         res = await db.execute(
             select(Students).where(Students.id == student_id))
@@ -45,7 +53,6 @@ class StudentService:
 
     @staticmethod
     async def assign_student_to_group(db: AsyncSession, student_id: int, group_id: int):
-        # Перевіряємо чи існує студент
         res = await db.execute(
             select(Students).where(Students.id == student_id))
         student = res.scalar_one_or_none()
@@ -55,7 +62,6 @@ class StudentService:
                 detail="Student not found"
             )
 
-        # Перевіряємо чи існує група
         group_res = await db.execute(
             select(Groups).where(Groups.id == group_id))
         group = group_res.scalar_one_or_none()
@@ -65,7 +71,6 @@ class StudentService:
                 detail="Group not found"
             )
 
-        # Прив'язуємо студента до групи
         student.group_id = group_id
         db.add(student)
         await db.commit()
