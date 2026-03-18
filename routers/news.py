@@ -35,7 +35,9 @@ async def get_news_item(news_id: int, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/parse/save", dependencies=[Depends(require_roles("ADMIN"))],
+@router.post("/parse/save", dependencies=[Depends(require_roles("ADMIN",
+                                                                "TEACHER",
+                                                                "STUDENT"))],
              response_model=NewsParseResponse)
 async def parse_and_save_news(db: AsyncSession = Depends(get_db)):
     try:
