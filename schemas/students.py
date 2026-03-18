@@ -12,6 +12,15 @@ class StudentGetResponse(BaseModel):
     last_login: Optional[datetime] = None
 
 
+class StudentCreateRequest(BaseModel):
+    email: EmailStr
+    role: Literal["STUDENT"] = "STUDENT"
+
+
+class StudentCreateResponse(BaseModel):
+    message: str
+
+
 class AssignStudentToGroupRequest(BaseModel):
     student_id: int
     group_id: int
@@ -22,5 +31,3 @@ class AssignStudentToGroupResponse(BaseModel):
     email: EmailStr
     name: str
     group_id: Optional[int] = None
-
-

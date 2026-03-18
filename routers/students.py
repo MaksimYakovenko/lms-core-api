@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
-from schemas.students import StudentGetResponse, AssignStudentToGroupRequest, AssignStudentToGroupResponse
+from schemas.students import (StudentGetResponse, AssignStudentToGroupRequest,
+                              AssignStudentToGroupResponse,
+                              StudentCreateResponse, StudentCreateRequest)
 from services.student_service.students_service import students_service
 from dependencies.require_roles import require_roles
 from db.database import get_db
@@ -16,6 +18,28 @@ async def get_students(db: AsyncSession = Depends(get_db)):
     try:
         students = await students_service.get_students(db)
         return students
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.post("/create_student", response_model=StudentCreateResponse,
+             dependencies=[Depends(require_roles("ADMIN"))])
+async def create_teacher(payload: StudentCreateRequest,
+                         db: AsyncSession = Depends(get_db)):
+    try:
+        await students_service.create_student(
+            db,
+            email=payload.email,
+            name="Unregistered",
+            role=payload.role
+        )
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={"message": "Student is created"}
+        )
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -40,10 +64,12 @@ async def delete_student(student_id: int, db: AsyncSession = Depends(get_db)):
             content={"message": "Internal server error"}
         )
 
+
 @router.put("/update_student/{id}",
             dependencies=[Depends(require_roles("ADMIN"))],
             response_model=StudentGetResponse)
-async def update_student(student_id: int, name: str, db: AsyncSession = Depends(get_db)):
+async def update_student(student_id: int, name: str,
+                         db: AsyncSession = Depends(get_db)):
     try:
         student = await students_service.update_student(db, student_id, name)
         return student
@@ -60,8 +86,8 @@ async def update_student(student_id: int, name: str, db: AsyncSession = Depends(
             dependencies=[Depends(require_roles("ADMIN"))],
             response_model=AssignStudentToGroupResponse)
 async def assign_student_to_group(
-    request: AssignStudentToGroupRequest,
-    db: AsyncSession = Depends(get_db)
+        request: AssignStudentToGroupRequest,
+        db: AsyncSession = Depends(get_db)
 ):
     try:
         student = await students_service.assign_student_to_group(
@@ -75,4 +101,3 @@ async def assign_student_to_group(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
-
