@@ -13,7 +13,7 @@ router = APIRouter(prefix="/students", tags=["Students"])
 
 
 @router.get("/get_students", response_model=list[StudentGetResponse],
-            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+            )
 async def get_students(db: AsyncSession = Depends(get_db)):
     try:
         students = await students_service.get_students(db)
@@ -23,29 +23,6 @@ async def get_students(db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
-
-
-@router.post("/create_student", response_model=StudentCreateResponse,
-             dependencies=[Depends(require_roles("ADMIN"))])
-async def create_teacher(payload: StudentCreateRequest,
-                         db: AsyncSession = Depends(get_db)):
-    try:
-        await students_service.create_student(
-            db,
-            email=payload.email,
-            name="Unregistered",
-            role=payload.role
-        )
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content={"message": "Student is created"}
-        )
-    except Exception:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
-        )
-
 
 @router.delete("/delete_student/{id}",
                dependencies=[Depends(require_roles("ADMIN"))])
@@ -83,7 +60,6 @@ async def update_student(student_id: int, name: str,
 
 
 @router.put("/assign_to_group",
-            dependencies=[Depends(require_roles("ADMIN"))],
             response_model=AssignStudentToGroupResponse)
 async def assign_student_to_group(
         request: AssignStudentToGroupRequest,

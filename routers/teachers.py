@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -27,6 +27,8 @@ async def create_teacher(payload: TeacherCreateRequest,
             status_code=status.HTTP_201_CREATED,
             content={"message": "Teacher is created"}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -40,6 +42,8 @@ async def get_teachers(db: AsyncSession = Depends(get_db)):
     try:
         teachers = await teacher_service.get_teachers(db)
         return teachers
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -55,6 +59,8 @@ Depends(get_db)):
     try:
         teacher = await teacher_service.update_teacher(db, teacher_id, name)
         return teacher
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -71,6 +77,8 @@ async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_200_OK,
             content={"message": "Teacher is deleted"}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
