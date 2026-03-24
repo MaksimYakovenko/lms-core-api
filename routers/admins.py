@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
@@ -25,6 +25,8 @@ async def create_admin(payload: AdminCreateRequest,
             status_code=status.HTTP_201_CREATED,
             content={"message": "Admin is created"}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -38,6 +40,8 @@ async def get_admins(db: AsyncSession = Depends(get_db)):
     try:
         admins = await admin_service.get_admins(db)
         return admins
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -53,6 +57,8 @@ Depends(get_db)):
     try:
         admin = await admin_service.update_admin(db, admin_id, name)
         return admin
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -69,6 +75,8 @@ async def delete_admin(admin_id: int, db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_200_OK,
             content={"message": "Admin is deleted"}
         )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

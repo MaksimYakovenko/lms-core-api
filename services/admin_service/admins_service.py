@@ -2,6 +2,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.admin_model import Admins
+from models.teacher_model import Teachers
 
 
 class AdminService:
@@ -12,6 +13,13 @@ class AdminService:
                            name: str,
                            role: str,
                            ) -> Admins:
+        teacher_res = await db.execute(select(Teachers).where(Teachers.email == email))
+        if teacher_res.scalar_one_or_none():
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="User already exists as a teacher"
+            )
+
         res = await db.execute(select(Admins).where(Admins.email == email))
         if res.scalar_one_or_none():
             raise HTTPException(

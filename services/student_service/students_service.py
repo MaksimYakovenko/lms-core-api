@@ -13,14 +13,6 @@ class StudentService:
         return students
 
     @staticmethod
-    async def create_student(db: AsyncSession, email: str, name: str, role: str) -> Students:
-        new_student = Students(email=email, name=name, role=role)
-        db.add(new_student)
-        await db.commit()
-        await db.refresh(new_student)
-        return new_student
-
-    @staticmethod
     async def delete_student(db: AsyncSession, student_id: int):
         res = await db.execute(
             select(Students).where(Students.id == student_id))
@@ -52,7 +44,8 @@ class StudentService:
         return student
 
     @staticmethod
-    async def assign_student_to_group(db: AsyncSession, student_id: int, group_id: int):
+    async def assign_student_to_group(db: AsyncSession, student_id: int,
+                                      group_id: int):
         res = await db.execute(
             select(Students).where(Students.id == student_id))
         student = res.scalar_one_or_none()
