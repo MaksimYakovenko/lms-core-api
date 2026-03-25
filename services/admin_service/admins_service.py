@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.admin_model import Admins
 from models.teacher_model import Teachers
+from models.auth_model import User
 
 
 class AdminService:
@@ -55,6 +56,12 @@ class AdminService:
                 detail="Admin not found"
             )
 
+        user_res = await db.execute(
+            select(User).where(User.email == admin.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            await db.delete(user)
+
         await db.delete(admin)
         await db.commit()
 
@@ -71,6 +78,17 @@ class AdminService:
 
         admin.name = name
         db.add(admin)
+
+        # Синхронізуємо ім'я у таблиці users
+        user_res = await db.execute(
+            select(User).where(User.email == admin.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            parts = name.split(" ", 1)
+            user.first_name = parts[0]
+            user.last_name = parts[1] if len(parts) > 1 else ""
+            db.add(user)
+
         await db.commit()
         await db.refresh(admin)
         return admin

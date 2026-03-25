@@ -18,3 +18,12 @@ class TeacherGetResponse(BaseModel):
     name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
     last_login: Optional[datetime] = None
+
+
+class TeacherDeleteResponse(BaseModel):
+    message: str
+
+
+class TeacherUpdateRequest(BaseModel):
+    id: int
+    name: str = Field(min_length=2, max_length=100)

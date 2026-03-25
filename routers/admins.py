@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
 from schemas.admins import AdminCreateRequest, AdminGetResponse, \
-    AdminCreateResponse
+    AdminCreateResponse, AdminUpdateRequest, AdminUpdateResponse
 from services.admin_service.admins_service import admin_service
 from dependencies.require_roles import require_roles
 
@@ -49,13 +49,13 @@ async def get_admins(db: AsyncSession = Depends(get_db)):
         )
 
 
-@router.put("/update_admin/{id}",
+@router.put("/update_admin",
             dependencies=[Depends(require_roles("ADMIN"))],
-            response_model=AdminGetResponse)
-async def update_admin(admin_id: int, name: str, db: AsyncSession =
+            response_model=AdminUpdateResponse)
+async def update_admin(payload: AdminUpdateRequest, db: AsyncSession =
 Depends(get_db)):
     try:
-        admin = await admin_service.update_admin(db, admin_id, name)
+        admin = await admin_service.update_admin(db, payload.id, payload.name)
         return admin
     except HTTPException:
         raise

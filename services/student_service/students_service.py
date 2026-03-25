@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.student_model import Students
 from models.group_model import Groups
+from models.auth_model import User
 
 
 class StudentService:
@@ -23,6 +24,12 @@ class StudentService:
                 detail="Student not found"
             )
 
+        user_res = await db.execute(
+            select(User).where(User.email == student.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            await db.delete(user)
+
         await db.delete(student)
         await db.commit()
 
@@ -39,6 +46,16 @@ class StudentService:
 
         student.name = name
         db.add(student)
+
+        user_res = await db.execute(
+            select(User).where(User.email == student.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            parts = name.split(" ", 1)
+            user.first_name = parts[0]
+            user.last_name = parts[1] if len(parts) > 1 else ""
+            db.add(user)
+
         await db.commit()
         await db.refresh(student)
         return student

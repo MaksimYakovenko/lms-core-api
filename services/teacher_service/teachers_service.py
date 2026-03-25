@@ -3,6 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.teacher_model import Teachers
 from models.admin_model import Admins
+from models.auth_model import User
 
 
 class TeacherService:
@@ -55,6 +56,13 @@ class TeacherService:
                 detail="Teacher not found"
             )
 
+
+        user_res = await db.execute(
+            select(User).where(User.email == teacher.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            await db.delete(user)
+
         await db.delete(teacher)
         await db.commit()
 
@@ -71,6 +79,16 @@ class TeacherService:
 
         teacher.name = name
         db.add(teacher)
+
+        user_res = await db.execute(
+            select(User).where(User.email == teacher.email))
+        user = user_res.scalar_one_or_none()
+        if user is not None:
+            parts = name.split(" ", 1)
+            user.first_name = parts[0]
+            user.last_name = parts[1] if len(parts) > 1 else ""
+            db.add(user)
+
         await db.commit()
         await db.refresh(teacher)
         return teacher

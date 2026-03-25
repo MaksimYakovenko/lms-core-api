@@ -35,3 +35,20 @@ class AssignStudentToGroupResponse(BaseModel):
     email: EmailStr
     name: str
     group_id: Optional[int] = None
+
+
+class StudentUpdateRequest(BaseModel):
+    id: int
+    name: str = Field(min_length=2, max_length=100)
+
+
+class StudentUpdateResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    email: EmailStr
+    name: str
+    role: str
+    group_id: Optional[int] = None
+    last_login: Optional[datetime] = None
+
