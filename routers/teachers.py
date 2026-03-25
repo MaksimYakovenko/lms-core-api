@@ -5,7 +5,7 @@ from sqlalchemy.future import select
 from db.database import get_db
 from models.teacher_model import Teachers
 from schemas.teachers import TeacherCreateRequest, TeacherCreateResponse, \
-    TeacherGetResponse
+    TeacherGetResponse, TeacherUpdateRequest, TeacherDeleteResponse
 from services.teacher_service.teachers_service import teacher_service
 from dependencies.require_roles import require_roles
 
@@ -54,10 +54,11 @@ async def get_teachers(db: AsyncSession = Depends(get_db)):
 @router.put("/update_teacher/{id}",
             dependencies=[Depends(require_roles("ADMIN"))],
             response_model=TeacherGetResponse)
-async def update_teacher(teacher_id: int, name: str, db: AsyncSession =
+async def update_teacher(payload: TeacherUpdateRequest, db: AsyncSession =
 Depends(get_db)):
     try:
-        teacher = await teacher_service.update_teacher(db, teacher_id, name)
+        teacher = await teacher_service.update_teacher(db, payload.id,
+                                                       payload.name)
         return teacher
     except HTTPException:
         raise
@@ -69,7 +70,7 @@ Depends(get_db)):
 
 
 @router.delete("/delete_teacher/{id}", dependencies=[Depends(require_roles(
-    "ADMIN"))])
+    "ADMIN"))], response_model=TeacherDeleteResponse)
 async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
     try:
         await teacher_service.delete_teacher(db, teacher_id)

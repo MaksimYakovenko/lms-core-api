@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from sqlalchemy.future import select
 from schemas.students import (StudentGetResponse, AssignStudentToGroupRequest,
                               AssignStudentToGroupResponse,
-                              StudentCreateResponse, StudentCreateRequest)
+                              StudentCreateResponse, StudentCreateRequest,
+                              StudentUpdateRequest, StudentUpdateResponse)
 from services.student_service.students_service import students_service
 from dependencies.require_roles import require_roles
 from db.database import get_db
@@ -42,13 +43,13 @@ async def delete_student(student_id: int, db: AsyncSession = Depends(get_db)):
         )
 
 
-@router.put("/update_student/{id}",
+@router.put("/update_student",
             dependencies=[Depends(require_roles("ADMIN"))],
-            response_model=StudentGetResponse)
-async def update_student(student_id: int, name: str,
+            response_model=StudentUpdateResponse)
+async def update_student(payload: StudentUpdateRequest,
                          db: AsyncSession = Depends(get_db)):
     try:
-        student = await students_service.update_student(db, student_id, name)
+        student = await students_service.update_student(db, payload.id, payload.name)
         return student
     except HTTPException as e:
         raise e
