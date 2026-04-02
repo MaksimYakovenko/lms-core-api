@@ -13,11 +13,13 @@ class TeacherCreateResponse(BaseModel):
 
 
 class TeacherGetResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     email: EmailStr
     name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
     last_login: Optional[datetime] = None
+    group_ids: List[int] = []
 
 
 class TeacherDeleteResponse(BaseModel):
