@@ -45,6 +45,8 @@ class TeacherService:
     async def get_teachers(db: AsyncSession) -> list[Teachers]:
         res = await db.execute(select(Teachers))
         teachers = res.scalars().all()
+        for teacher in teachers:
+            teacher.group_ids = [g.id for g in teacher.groups]
         return teachers
 
     @staticmethod
@@ -92,6 +94,7 @@ class TeacherService:
 
         await db.commit()
         await db.refresh(teacher)
+        teacher.group_ids = [g.id for g in teacher.groups]
         return teacher
 
     @staticmethod
