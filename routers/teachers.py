@@ -4,8 +4,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from db.database import get_db
 from models.teacher_model import Teachers
-from schemas.teachers import TeacherCreateRequest, TeacherCreateResponse, \
-    TeacherGetResponse, TeacherUpdateRequest, TeacherDeleteResponse
+from schemas.teachers import (TeacherCreateRequest, TeacherCreateResponse, \
+                              TeacherGetResponse, TeacherUpdateRequest,
+                              TeacherDeleteResponse,
+                              AssignTeacherToGroupsRequest,
+                              AssignTeacherToGroupsResponse)
 from services.teacher_service.teachers_service import teacher_service
 from dependencies.require_roles import require_roles
 
@@ -80,6 +83,27 @@ async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
         )
     except HTTPException:
         raise
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.put("/assign_to_groups",
+            response_model=AssignTeacherToGroupsResponse,
+            dependencies=[Depends(require_roles("ADMIN"))])
+async def assign_student_to_group(
+        request: AssignTeacherToGroupsRequest,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        teacher = await teacher_service.assign_teacher_to_groups(
+            db, request.teacher_id, request.group_ids
+        )
+        return teacher
+    except HTTPException as e:
+        raise e
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

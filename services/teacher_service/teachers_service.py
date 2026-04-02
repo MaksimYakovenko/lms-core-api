@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.teacher_model import Teachers
 from models.admin_model import Admins
 from models.auth_model import User
+from models.group_model import Groups
 
 
 class TeacherService:
@@ -14,7 +15,8 @@ class TeacherService:
                              name: str,
                              role: str,
                              ) -> Teachers:
-        admin_res = await db.execute(select(Admins).where(Admins.email == email))
+        admin_res = await db.execute(
+            select(Admins).where(Admins.email == email))
         if admin_res.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -56,7 +58,6 @@ class TeacherService:
                 detail="Teacher not found"
             )
 
-
         user_res = await db.execute(
             select(User).where(User.email == teacher.email))
         user = user_res.scalar_one_or_none()
@@ -91,6 +92,37 @@ class TeacherService:
 
         await db.commit()
         await db.refresh(teacher)
+        return teacher
+
+    @staticmethod
+    async def assign_teacher_to_groups(db: AsyncSession, teacher_id: int,
+                                       group_ids: list[int]):
+        res = await db.execute(
+            select(Teachers).where(Teachers.id == teacher_id))
+        teacher = res.scalar_one_or_none()
+        if teacher is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teacher not found"
+            )
+
+        groups_res = await db.execute(
+            select(Groups).where(Groups.id.in_(group_ids)))
+        groups = groups_res.scalars().all()
+
+        if len(groups) != len(group_ids):
+            found_ids = {g.id for g in groups}
+            missing = [gid for gid in group_ids if gid not in found_ids]
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Groups not found: {missing}"
+            )
+
+        teacher.groups = list(groups)
+        db.add(teacher)
+        await db.commit()
+        await db.refresh(teacher)
+        teacher.group_ids = [g.id for g in teacher.groups]
         return teacher
 
 

@@ -7,6 +7,12 @@ DATABASE_URL = (f"postgresql+asyncpg://{settings.DB_USER}"
                 f"{settings.DB_PORT}/"
                 f"{settings.DB_NAME}")
 
+
+DATABASE_URL_SYNC = (f"postgresql://{settings.DB_USER}"
+                    f":{settings.DB_PASSWORD}@{settings.DB_HOST}:"
+                    f"{settings.DB_PORT}/"
+                    f"{settings.DB_NAME}")
+
 engine = create_async_engine(DATABASE_URL, echo=False)
 
 AsyncSessionLocal = sessionmaker(

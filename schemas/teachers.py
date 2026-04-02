@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, EmailStr
-from typing import Literal, Optional
+from pydantic import BaseModel, ConfigDict, Field, EmailStr
+from typing import Literal, Optional, List
 from datetime import datetime
 
 
@@ -27,3 +27,18 @@ class TeacherDeleteResponse(BaseModel):
 class TeacherUpdateRequest(BaseModel):
     id: int
     name: str = Field(min_length=2, max_length=100)
+
+
+class AssignTeacherToGroupsRequest(BaseModel):
+    teacher_id: int
+    group_ids: list[int]
+
+
+class AssignTeacherToGroupsResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    email: EmailStr
+    name: str
+    role: str
+    last_login: Optional[datetime] = None
+    group_ids: List[int] = []
