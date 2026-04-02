@@ -16,7 +16,7 @@ from models.admin_model import Admins
 from models.teacher_model import Teachers
 from models.student_model import Students
 from models.group_model import Groups
-# from models.subject_model import Subjects
+from models.subject_model import Subjects
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

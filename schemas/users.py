@@ -13,32 +13,3 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class UsersBlockRequest(BaseModel):
-    users: list[EmailStr] = Field(
-        ...,
-        examples=[["user1@example.com", "user2@example.com"]]
-    )
-
-
-class UsersBlockResponse(BaseModel):
-    success: bool = Field()
-    message: str = Field()
-    blocked_count: int = Field()
-    already_blocked: list[str] = Field(default_factory=list, )
-    not_found: list[str] = Field(default_factory=list, )
-
-
-class UsersUnblockRequest(BaseModel):
-    users: list[EmailStr] = Field(
-        examples=[["user1@example.com", "user2@example.com"]]
-    )
-
-
-class UsersUnblockResponse(BaseModel):
-    success: bool = Field()
-    message: str = Field()
-    unblocked_count: int = Field()
-    already_active: list[str] = Field(default_factory=list)
-    not_found: list[str] = Field(default_factory=list,)
