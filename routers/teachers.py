@@ -72,24 +72,6 @@ Depends(get_db)):
         )
 
 
-@router.delete("/delete_teacher/{id}", dependencies=[Depends(require_roles(
-    "ADMIN"))], response_model=TeacherDeleteResponse)
-async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
-    try:
-        await teacher_service.delete_teacher(db, teacher_id)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Teacher is deleted"}
-        )
-    except HTTPException:
-        raise
-    except Exception:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
-        )
-
-
 @router.put("/assign_to_groups",
             response_model=AssignTeacherToGroupsResponse,
             dependencies=[Depends(require_roles("ADMIN"))])
@@ -104,6 +86,24 @@ async def assign_student_to_group(
         return teacher
     except HTTPException as e:
         raise e
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.delete("/delete_teacher/{id}", dependencies=[Depends(require_roles(
+    "ADMIN"))], response_model=TeacherDeleteResponse)
+async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        await teacher_service.delete_teacher(db, teacher_id)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"message": "Teacher is deleted"}
+        )
+    except HTTPException:
+        raise
     except Exception:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
