@@ -1,4 +1,5 @@
 from cachetools import TTLCache
+from enum import Enum
 
 CAPTCHA_CACHE = TTLCache(maxsize=1000, ttl=300)
 captcha_cache = CAPTCHA_CACHE
@@ -16,3 +17,11 @@ HEADERS = {
     'Sec-Fetch-Site': 'none',
     'Cache-Control': 'max-age=0'
 }
+
+
+class LessonType(str, Enum):
+    LESSON = "LESSON"
+    KR = "КР"
+    SR = "СР"
+    SEM = "СЕМ"
+    TEM = "ТЕМ"

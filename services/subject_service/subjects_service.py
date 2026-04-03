@@ -2,6 +2,8 @@ from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.subject_model import Subjects
+from models.teacher_model import Teachers
+from models.teacher_subject import TeacherSubject
 
 
 class SubjectService:
@@ -65,6 +67,35 @@ class SubjectService:
         await db.commit()
         await db.refresh(subject)
         return subject
+
+    @staticmethod
+    async def get_my_subjects(db: AsyncSession, user_email: str) -> list[Subjects]:
+        # Знаходимо вчителя по email авторизованого юзера
+        teacher_res = await db.execute(
+            select(Teachers).where(Teachers.email == user_email)
+        )
+        teacher = teacher_res.scalar_one_or_none()
+        if teacher is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teacher profile not found for current user"
+            )
+
+        # Беремо всі subject_id з teacher_subject
+        ts_res = await db.execute(
+            select(TeacherSubject.subject_id).where(
+                TeacherSubject.teacher_id == teacher.id
+            )
+        )
+        subject_ids = [row[0] for row in ts_res.fetchall()]
+
+        if not subject_ids:
+            return []
+
+        subjects_res = await db.execute(
+            select(Subjects).where(Subjects.id.in_(subject_ids))
+        )
+        return subjects_res.scalars().all()
 
 
 subjects_service = SubjectService()

@@ -44,3 +44,19 @@ class AssignTeacherToGroupsResponse(BaseModel):
     role: str
     last_login: Optional[datetime] = None
     group_ids: List[int] = []
+
+
+class AssignSubjectToTeacherRequest(BaseModel):
+    subject_id: int
+
+
+class TeacherSubjectResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+
+
+class TeacherSubjectsListResponse(BaseModel):
+    teacher_id: int
+    subjects: List[TeacherSubjectResponse]
+
