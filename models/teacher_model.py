@@ -24,3 +24,6 @@ class Teachers(Base):
     groups: Mapped[List["Groups"]] = relationship(
         "Groups", secondary=teacher_groups, lazy="selectin"
     )
+    teacher_subjects: Mapped[List["TeacherSubject"]] = relationship(
+        "TeacherSubject", back_populates="teacher", lazy="selectin", cascade="all, delete-orphan"
+    )

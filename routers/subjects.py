@@ -3,10 +3,31 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from services.subject_service.subjects_service import subjects_service
 from dependencies.require_roles import require_roles
+from dependencies.current_user import get_current_user
 from schemas.subjects import SubjectGetResponse, SubjectCreateRequest
 from db.database import get_db
+from models.auth_model import User
 
 router = APIRouter(prefix="/subjects", tags=["Subjects"])
+
+
+@router.get("/my", response_model=list[SubjectGetResponse],
+            dependencies=[Depends(require_roles("TEACHER"))])
+async def get_my_subjects(
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    """Предмети які може викладати поточний вчитель (для дропдауну при створенні журналу)"""
+    try:
+        subjects = await subjects_service.get_my_subjects(db, current_user.email)
+        return subjects
+    except HTTPException:
+        raise
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
 
 
 @router.get("/get_subjects", response_model=list[SubjectGetResponse],
