@@ -6,7 +6,9 @@ from models.journal_model import Journal
 from models.teacher_model import Teachers
 from models.group_model import Groups
 from models.subject_model import Subjects
+from models.student_model import Students
 from models.teacher_subject import TeacherSubject
+from schemas.journals import JournalFullResponse, JournalListResponse, LessonResponse, GroupShort, SubjectShort, TeacherShort, StudentShort
 
 
 class JournalService:
@@ -24,17 +26,14 @@ class JournalService:
         if group is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
 
-        # Перевірка предмету
         subject = await db.get(Subjects, subject_id)
         if subject is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
 
-        # Перевірка вчителя
         teacher = await db.get(Teachers, teacher_id)
         if teacher is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
 
-        # Перевірка що вчитель може викладати цей предмет
         ts_res = await db.execute(
             select(TeacherSubject).where(
                 TeacherSubject.teacher_id == teacher_id,
@@ -92,11 +91,36 @@ class JournalService:
         return res.scalars().all()
 
     @staticmethod
-    async def get_journal_by_id(db: AsyncSession, journal_id: int) -> Journal:
+    async def get_journal_by_id(db: AsyncSession, journal_id: int) -> JournalFullResponse:
         journal = await db.get(Journal, journal_id)
         if journal is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Journal not found")
-        return journal
+
+        students_res = await db.execute(
+            select(Students)
+            .where(Students.group_id == journal.group_id)
+            .order_by(Students.name)
+        )
+        students = students_res.scalars().all()
+
+        return JournalFullResponse(
+            id=journal.id,
+            group=GroupShort(id=journal.group.id, name=journal.group.name),
+            subject=SubjectShort(id=journal.subject.id, name=journal.subject.name),
+            teacher=TeacherShort(id=journal.teacher.id, name=journal.teacher.name),
+            assistant=TeacherShort(id=journal.assistant.id, name=journal.assistant.name) if journal.assistant else None,
+            lessons=[
+                LessonResponse(
+                    id=l.id,
+                    date=l.date,
+                    lesson_type=l.lesson_type,
+                    order_index=l.order_index,
+                    topic=l.topic,
+                )
+                for l in sorted(journal.lessons, key=lambda x: x.order_index)
+            ],
+            students=[StudentShort(id=s.id, name=s.name) for s in students],
+        )
 
     @staticmethod
     async def delete_journal(db: AsyncSession, journal_id: int) -> None:

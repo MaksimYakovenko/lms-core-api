@@ -1,10 +1,8 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import date
-from core.constants import LessonType
 
 
-# ── Lesson schemas ──────────────────────────────────────────────
 class LessonResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -14,7 +12,6 @@ class LessonResponse(BaseModel):
     topic: Optional[str] = None
 
 
-# ── Subject / Teacher nested ────────────────────────────────────
 class SubjectShort(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -33,6 +30,12 @@ class GroupShort(BaseModel):
     name: str
 
 
+class StudentShort(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    name: str
+
+
 # ── Journal schemas ─────────────────────────────────────────────
 class JournalCreateRequest(BaseModel):
     group_id: int
@@ -42,6 +45,7 @@ class JournalCreateRequest(BaseModel):
 
 
 class JournalResponse(BaseModel):
+    """Відповідь після створення журналу"""
     model_config = ConfigDict(from_attributes=True)
     id: int
     group: GroupShort
@@ -51,6 +55,7 @@ class JournalResponse(BaseModel):
 
 
 class JournalListResponse(BaseModel):
+    """Список журналів (без студентів — для перегляду списку)"""
     model_config = ConfigDict(from_attributes=True)
     id: int
     group: GroupShort
@@ -58,3 +63,15 @@ class JournalListResponse(BaseModel):
     teacher: TeacherShort
     assistant: Optional[TeacherShort] = None
     lessons: List[LessonResponse] = []
+
+
+class JournalFullResponse(BaseModel):
+    """Повний журнал з уроками та студентами групи"""
+    id: int
+    group: GroupShort
+    subject: SubjectShort
+    teacher: TeacherShort
+    assistant: Optional[TeacherShort] = None
+    lessons: List[LessonResponse] = []
+    students: List[StudentShort] = []   # автоматично з групи
+
