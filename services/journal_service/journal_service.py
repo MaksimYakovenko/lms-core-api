@@ -8,31 +8,36 @@ from models.group_model import Groups
 from models.subject_model import Subjects
 from models.student_model import Students
 from models.teacher_subject import TeacherSubject
-from schemas.journals import JournalFullResponse, JournalListResponse, LessonResponse, GroupShort, SubjectShort, TeacherShort, StudentShort
+from models.grade_model import Grade
+from schemas.journals import JournalFullResponse, JournalListResponse, \
+    LessonResponse, GroupShort, SubjectShort, TeacherShort, StudentShort
+from schemas.grades import GradeResponse
 
 
 class JournalService:
 
     @staticmethod
     async def create_journal(
-        db: AsyncSession,
-        group_id: int,
-        subject_id: int,
-        teacher_id: int,
-        assistant_id: int | None = None,
+            db: AsyncSession,
+            group_id: int,
+            subject_id: int,
+            teacher_id: int,
+            assistant_id: int | None = None,
     ) -> Journal:
-        # Перевірка групи
         group = await db.get(Groups, group_id)
         if group is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Group not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Group not found")
 
         subject = await db.get(Subjects, subject_id)
         if subject is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Subject not found")
 
         teacher = await db.get(Teachers, teacher_id)
         if teacher is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Teacher not found")
 
         ts_res = await db.execute(
             select(TeacherSubject).where(
@@ -46,13 +51,12 @@ class JournalService:
                 detail="Teacher is not assigned to this subject",
             )
 
-        # Перевірка асистента
         if assistant_id is not None:
             assistant = await db.get(Teachers, assistant_id)
             if assistant is None:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assistant not found")
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail="Assistant not found")
 
-        # Перевірка унікальності журналу (група + предмет)
         existing = await db.execute(
             select(Journal).where(
                 Journal.group_id == group_id,
@@ -78,9 +82,9 @@ class JournalService:
 
     @staticmethod
     async def get_journals(
-        db: AsyncSession,
-        group_id: int | None = None,
-        teacher_id: int | None = None,
+            db: AsyncSession,
+            group_id: int | None = None,
+            teacher_id: int | None = None,
     ) -> list[Journal]:
         query = select(Journal)
         if group_id is not None:
@@ -91,10 +95,12 @@ class JournalService:
         return res.scalars().all()
 
     @staticmethod
-    async def get_journal_by_id(db: AsyncSession, journal_id: int) -> JournalFullResponse:
+    async def get_journal_by_id(db: AsyncSession,
+                                journal_id: int) -> JournalFullResponse:
         journal = await db.get(Journal, journal_id)
         if journal is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Journal not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Journal not found")
 
         students_res = await db.execute(
             select(Students)
@@ -103,12 +109,23 @@ class JournalService:
         )
         students = students_res.scalars().all()
 
+        lesson_ids = [l.id for l in journal.lessons]
+        grades = []
+        if lesson_ids:
+            grades_res = await db.execute(
+                select(Grade).where(Grade.lesson_id.in_(lesson_ids))
+            )
+            grades = grades_res.scalars().all()
+
         return JournalFullResponse(
             id=journal.id,
             group=GroupShort(id=journal.group.id, name=journal.group.name),
-            subject=SubjectShort(id=journal.subject.id, name=journal.subject.name),
-            teacher=TeacherShort(id=journal.teacher.id, name=journal.teacher.name),
-            assistant=TeacherShort(id=journal.assistant.id, name=journal.assistant.name) if journal.assistant else None,
+            subject=SubjectShort(id=journal.subject.id,
+                                 name=journal.subject.name),
+            teacher=TeacherShort(id=journal.teacher.id,
+                                 name=journal.teacher.name),
+            assistant=TeacherShort(id=journal.assistant.id,
+                                   name=journal.assistant.name) if journal.assistant else None,
             lessons=[
                 LessonResponse(
                     id=l.id,
@@ -120,13 +137,24 @@ class JournalService:
                 for l in sorted(journal.lessons, key=lambda x: x.order_index)
             ],
             students=[StudentShort(id=s.id, name=s.name) for s in students],
+            grades=[
+                GradeResponse(
+                    id=g.id,
+                    lesson_id=g.lesson_id,
+                    student_id=g.student_id,
+                    value=g.value,
+                    remark=g.remark,
+                )
+                for g in grades
+            ],
         )
 
     @staticmethod
     async def delete_journal(db: AsyncSession, journal_id: int) -> None:
         journal = await db.get(Journal, journal_id)
         if journal is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Journal not found")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Journal not found")
         await db.delete(journal)
         await db.commit()
 

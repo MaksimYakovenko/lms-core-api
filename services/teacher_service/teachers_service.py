@@ -7,6 +7,7 @@ from models.auth_model import User
 from models.group_model import Groups
 from models.subject_model import Subjects
 from models.teacher_subject import TeacherSubject
+from repositories.teacher_repository import TeacherRepository
 
 
 class TeacherService:
@@ -25,8 +26,8 @@ class TeacherService:
                 detail="User already exists as an admin"
             )
 
-        res = await db.execute(select(Teachers).where(Teachers.email == email))
-        if res.scalar_one_or_none():
+        existing_teacher = await TeacherRepository.get_by_email(db, email)
+        if existing_teacher:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Teacher already existed"
@@ -38,24 +39,21 @@ class TeacherService:
             role=role
         )
 
-        db.add(teacher)
+        res = await TeacherRepository.create(db, teacher)
         await db.commit()
-        await db.refresh(teacher)
-        return teacher
+        await db.refresh(res)
+        return res
 
     @staticmethod
     async def get_teachers(db: AsyncSession) -> list[Teachers]:
-        res = await db.execute(select(Teachers))
-        teachers = res.scalars().all()
+        teachers = await TeacherRepository.get_all(db)
         for teacher in teachers:
             teacher.group_ids = [g.id for g in teacher.groups]
         return teachers
 
     @staticmethod
     async def delete_teacher(db: AsyncSession, teacher_id: int):
-        res = await db.execute(
-            select(Teachers).where(Teachers.id == teacher_id))
-        teacher = res.scalar_one_or_none()
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -68,14 +66,12 @@ class TeacherService:
         if user is not None:
             await db.delete(user)
 
-        await db.delete(teacher)
+        await TeacherRepository.delete(db, teacher)
         await db.commit()
 
     @staticmethod
     async def update_teacher(db: AsyncSession, teacher_id: int, name: str):
-        res = await db.execute(
-            select(Teachers).where(Teachers.id == teacher_id))
-        teacher = res.scalar_one_or_none()
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -83,7 +79,7 @@ class TeacherService:
             )
 
         teacher.name = name
-        db.add(teacher)
+        await TeacherRepository.update(db, teacher)
 
         user_res = await db.execute(
             select(User).where(User.email == teacher.email))
@@ -102,9 +98,7 @@ class TeacherService:
     @staticmethod
     async def assign_teacher_to_groups(db: AsyncSession, teacher_id: int,
                                        group_ids: list[int]):
-        res = await db.execute(
-            select(Teachers).where(Teachers.id == teacher_id))
-        teacher = res.scalar_one_or_none()
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -124,7 +118,7 @@ class TeacherService:
             )
 
         teacher.groups = list(groups)
-        db.add(teacher)
+        await TeacherRepository.update(db, teacher)
         await db.commit()
         await db.refresh(teacher)
         teacher.group_ids = [g.id for g in teacher.groups]
@@ -132,8 +126,7 @@ class TeacherService:
 
     @staticmethod
     async def assign_subject_to_teacher(db: AsyncSession, teacher_id: int, subject_id: int):
-        teacher_res = await db.execute(select(Teachers).where(Teachers.id == teacher_id))
-        teacher = teacher_res.scalar_one_or_none()
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
 
@@ -157,8 +150,8 @@ class TeacherService:
 
     @staticmethod
     async def remove_subject_from_teacher(db: AsyncSession, teacher_id: int, subject_id: int):
-        teacher_res = await db.execute(select(Teachers).where(Teachers.id == teacher_id))
-        if teacher_res.scalar_one_or_none() is None:
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
+        if teacher is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
 
         ts_res = await db.execute(
@@ -176,8 +169,7 @@ class TeacherService:
 
     @staticmethod
     async def get_teacher_subjects(db: AsyncSession, teacher_id: int) -> list[Subjects]:
-        teacher_res = await db.execute(select(Teachers).where(Teachers.id == teacher_id))
-        teacher = teacher_res.scalar_one_or_none()
+        teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
 

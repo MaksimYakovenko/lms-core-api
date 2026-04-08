@@ -4,73 +4,65 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.subject_model import Subjects
 from models.teacher_model import Teachers
 from models.teacher_subject import TeacherSubject
+from repositories.subject_repository import SubjectRepository
 
 
 class SubjectService:
     @staticmethod
     async def get_subjects(db: AsyncSession) -> list[Subjects]:
-        res = await db.execute(select(Subjects))
-        subjects = res.scalars().all()
-        return subjects
+        return await SubjectRepository.get_all(db)
 
     @staticmethod
     async def create_subject(db: AsyncSession, name: str):
-        existing_subject = await db.execute(
-            select(Subjects).where(Subjects.name == name))
-        if existing_subject.scalar_one_or_none() is not None:
+        existing_subject = await SubjectRepository.get_by_name(db, name)
+        if existing_subject is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Subject with this name already exists"
             )
 
         new_subject = Subjects(name=name)
-        db.add(new_subject)
+        res = await SubjectRepository.create(db, new_subject)
         await db.commit()
-        await db.refresh(new_subject)
-        return new_subject
+        await db.refresh(res)
+        return res
 
     @staticmethod
     async def delete_subject(db: AsyncSession, subject_id: int):
-        res = await db.execute(
-            select(Subjects).where(Subjects.id == subject_id))
-        subject = res.scalar_one_or_none()
+        subject = await SubjectRepository.get_by_id(db, subject_id)
         if subject is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Subject not found"
             )
 
-        await db.delete(subject)
+        await SubjectRepository.delete(db, subject)
         await db.commit()
 
     @staticmethod
     async def update_subject(db: AsyncSession, subject_id: int, name: str):
-        res = await db.execute(
-            select(Subjects).where(Subjects.id == subject_id))
-        subject = res.scalar_one_or_none()
+        subject = await SubjectRepository.get_by_id(db, subject_id)
         if subject is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Subject not found"
             )
 
-        existing_subject = await db.execute(
-            select(Subjects).where(Subjects.name == name))
-        if existing_subject.scalar_one_or_none() is not None:
+        existing_subject = await SubjectRepository.get_by_name(db, name)
+        if existing_subject is not None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Subject with this name already exists"
             )
 
         subject.name = name
-        db.add(subject)
+        await SubjectRepository.update(db, subject)
         await db.commit()
         await db.refresh(subject)
         return subject
 
     @staticmethod
     async def get_my_subjects(db: AsyncSession, user_email: str) -> list[Subjects]:
-        # Знаходимо вчителя по email авторизованого юзера
         teacher_res = await db.execute(
             select(Teachers).where(Teachers.email == user_email)
         )
@@ -81,7 +73,6 @@ class SubjectService:
                 detail="Teacher profile not found for current user"
             )
 
-        # Беремо всі subject_id з teacher_subject
         ts_res = await db.execute(
             select(TeacherSubject.subject_id).where(
                 TeacherSubject.teacher_id == teacher.id
