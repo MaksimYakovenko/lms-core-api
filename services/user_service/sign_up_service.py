@@ -6,6 +6,7 @@ from models.auth_model import User
 from utils.security import hash_password
 from services.user_service.captcha_service import captcha_service
 from utils.extract_roles import extract_role
+from repositories.user_repository import UserRepository
 
 
 class SignUpService:
@@ -22,8 +23,8 @@ class SignUpService:
                           ) -> User:
         await captcha_service.verify_captcha(captcha_id, captcha_answer)
 
-        res = await db.execute(select(User).where(User.email == email))
-        if res.scalar_one_or_none():
+        existing_user = await UserRepository.get_by_email(db, email)
+        if existing_user:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Email already registered"
@@ -45,10 +46,10 @@ class SignUpService:
             role=role
         )
 
-        db.add(user)
+        res = await UserRepository.create(db, user)
         await db.commit()
-        await db.refresh(user)
-        return user
+        await db.refresh(res)
+        return res
 
 
 auth_service = SignUpService()

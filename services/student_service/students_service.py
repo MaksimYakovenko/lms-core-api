@@ -4,20 +4,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.student_model import Students
 from models.group_model import Groups
 from models.auth_model import User
+from repositories.student_repository import StudentRepository
+from repositories.group_repository import GroupRepository
 
 
 class StudentService:
     @staticmethod
     async def get_students(db: AsyncSession) -> list[Students]:
-        res = await db.execute(select(Students))
-        students = res.scalars().all()
-        return students
+        return await StudentRepository.get_all(db)
 
     @staticmethod
     async def delete_student(db: AsyncSession, student_id: int):
-        res = await db.execute(
-            select(Students).where(Students.id == student_id))
-        student = res.scalar_one_or_none()
+        student = await StudentRepository.get_by_id(db, student_id)
         if student is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -30,14 +28,12 @@ class StudentService:
         if user is not None:
             await db.delete(user)
 
-        await db.delete(student)
+        await StudentRepository.delete(db, student)
         await db.commit()
 
     @staticmethod
     async def update_student(db: AsyncSession, student_id: int, name: str):
-        res = await db.execute(
-            select(Students).where(Students.id == student_id))
-        student = res.scalar_one_or_none()
+        student = await StudentRepository.get_by_id(db, student_id)
         if student is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -45,7 +41,7 @@ class StudentService:
             )
 
         student.name = name
-        db.add(student)
+        await StudentRepository.update(db, student)
 
         user_res = await db.execute(
             select(User).where(User.email == student.email))
@@ -63,18 +59,14 @@ class StudentService:
     @staticmethod
     async def assign_student_to_group(db: AsyncSession, student_id: int,
                                       group_id: int):
-        res = await db.execute(
-            select(Students).where(Students.id == student_id))
-        student = res.scalar_one_or_none()
+        student = await StudentRepository.get_by_id(db, student_id)
         if student is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Student not found"
             )
 
-        group_res = await db.execute(
-            select(Groups).where(Groups.id == group_id))
-        group = group_res.scalar_one_or_none()
+        group = await GroupRepository.get_by_id(db, group_id)
         if group is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -82,7 +74,7 @@ class StudentService:
             )
 
         student.group_id = group_id
-        db.add(student)
+        await StudentRepository.update(db, student)
         await db.commit()
         await db.refresh(student)
         return student

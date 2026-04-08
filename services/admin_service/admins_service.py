@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.admin_model import Admins
 from models.teacher_model import Teachers
 from models.auth_model import User
+from repositories.admin_repository import AdminRepository
 
 
 class AdminService:
@@ -21,8 +22,8 @@ class AdminService:
                 detail="User already exists as a teacher"
             )
 
-        res = await db.execute(select(Admins).where(Admins.email == email))
-        if res.scalar_one_or_none():
+        existing_admin = await AdminRepository.get_by_email(db, email)
+        if existing_admin:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Admin already existed"
@@ -34,22 +35,18 @@ class AdminService:
             role=role
         )
 
-        db.add(admin)
+        res = await AdminRepository.create(db, admin)
         await db.commit()
-        await db.refresh(admin)
-        return admin
+        await db.refresh(res)
+        return res
 
     @staticmethod
     async def get_admins(db: AsyncSession) -> list[Admins]:
-        res = await db.execute(select(Admins))
-        admins = res.scalars().all()
-        return admins
+        return await AdminRepository.get_all(db)
 
     @staticmethod
     async def delete_admin(db: AsyncSession, admin_id: int):
-        res = await db.execute(
-            select(Admins).where(Admins.id == admin_id))
-        admin = res.scalar_one_or_none()
+        admin = await AdminRepository.get_by_id(db, admin_id)
         if admin is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -62,14 +59,12 @@ class AdminService:
         if user is not None:
             await db.delete(user)
 
-        await db.delete(admin)
+        await AdminRepository.delete(db, admin)
         await db.commit()
 
     @staticmethod
     async def update_admin(db: AsyncSession, admin_id: int, name: str):
-        res = await db.execute(
-            select(Admins).where(Admins.id == admin_id))
-        admin = res.scalar_one_or_none()
+        admin = await AdminRepository.get_by_id(db, admin_id)
         if admin is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -77,9 +72,8 @@ class AdminService:
             )
 
         admin.name = name
-        db.add(admin)
+        await AdminRepository.update(db, admin)
 
-        # Синхронізуємо ім'я у таблиці users
         user_res = await db.execute(
             select(User).where(User.email == admin.email))
         user = user_res.scalar_one_or_none()

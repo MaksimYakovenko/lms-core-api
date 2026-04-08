@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from typing import Optional, List
 from datetime import date
+from schemas.grades import GradeResponse
 
 
 class LessonResponse(BaseModel):
@@ -36,7 +37,6 @@ class StudentShort(BaseModel):
     name: str
 
 
-# ── Journal schemas ─────────────────────────────────────────────
 class JournalCreateRequest(BaseModel):
     group_id: int
     subject_id: int
@@ -45,7 +45,6 @@ class JournalCreateRequest(BaseModel):
 
 
 class JournalResponse(BaseModel):
-    """Відповідь після створення журналу"""
     model_config = ConfigDict(from_attributes=True)
     id: int
     group: GroupShort
@@ -55,7 +54,6 @@ class JournalResponse(BaseModel):
 
 
 class JournalListResponse(BaseModel):
-    """Список журналів (без студентів — для перегляду списку)"""
     model_config = ConfigDict(from_attributes=True)
     id: int
     group: GroupShort
@@ -66,12 +64,12 @@ class JournalListResponse(BaseModel):
 
 
 class JournalFullResponse(BaseModel):
-    """Повний журнал з уроками та студентами групи"""
     id: int
     group: GroupShort
     subject: SubjectShort
     teacher: TeacherShort
     assistant: Optional[TeacherShort] = None
     lessons: List[LessonResponse] = []
-    students: List[StudentShort] = []   # автоматично з групи
+    students: List[StudentShort] = []
+    grades: List[GradeResponse] = []
 
