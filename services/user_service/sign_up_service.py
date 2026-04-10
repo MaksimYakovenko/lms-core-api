@@ -45,7 +45,7 @@ class SignUpService:
             birthday=birthday,
             role=role
         )
-
+        #
         res = await UserRepository.create(db, user)
         await db.commit()
         await db.refresh(res)
