@@ -34,8 +34,8 @@ async def create_group(payload: GroupCreateRequest, db: AsyncSession = Depends(g
         )
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Internal server error"
+            detail=str(e)
         )

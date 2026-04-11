@@ -8,6 +8,7 @@ class GroupRepository:
     async def create(db: AsyncSession, group: Groups) -> Groups:
         db.add(group)
         await db.flush()
+        await db.commit()
         return group
 
 
