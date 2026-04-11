@@ -2,13 +2,18 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.group_model import Groups
 from repositories.group_repository import GroupRepository
+from sqlalchemy.future import select
 
 
 class GroupService:
     @staticmethod
     async def create_group(db: AsyncSession, name: str, course_number: int) \
             -> Groups:
-        res = await db.execute(select(Groups).where(Groups.name == name))
+        res = await db.execute(
+            select(Groups).where(
+                (Groups.name == name) & (Groups.course_number == course_number)
+            )
+        )
         if res.scalar_one_or_none():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

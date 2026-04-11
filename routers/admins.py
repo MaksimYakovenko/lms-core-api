@@ -10,8 +10,7 @@ from dependencies.require_roles import require_roles
 router = APIRouter(prefix="/admins", tags=["Admins"])
 
 
-@router.post("/create_admin", response_model=AdminCreateResponse,
-             dependencies=[Depends(require_roles("ADMIN"))]
+@router.post("/create_admin", response_model=AdminCreateResponse
              )
 async def create_admin(payload: AdminCreateRequest,
                        db: AsyncSession = Depends(get_db)):
