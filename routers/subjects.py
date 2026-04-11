@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from services.subject_service.subjects_service import subjects_service
 from dependencies.require_roles import require_roles
 from dependencies.current_user import get_current_user
-from schemas.subjects import SubjectGetResponse, SubjectCreateRequest
+from schemas.subjects import SubjectGetResponse, SubjectCreateRequest, \
+    SubjectUpdateRequest
 from db.database import get_db
 from models.auth_model import User
 
@@ -17,9 +18,9 @@ async def get_my_subjects(
         db: AsyncSession = Depends(get_db),
         current_user: User = Depends(get_current_user)
 ):
-    """Предмети які може викладати поточний вчитель (для дропдауну при створенні журналу)"""
     try:
-        subjects = await subjects_service.get_my_subjects(db, current_user.email)
+        subjects = await subjects_service.get_my_subjects(db,
+                                                          current_user.email)
         return subjects
     except HTTPException:
         raise
@@ -59,15 +60,15 @@ async def create_subject(payload: SubjectCreateRequest,
         )
 
 
-@router.put("/update_subject/{id}",
+@router.put("/update_subject",
             dependencies=[Depends(require_roles("ADMIN"))],
             response_model=SubjectGetResponse)
-async def update_subject(subject_id: int, payload: SubjectCreateRequest,
+async def update_student(payload: SubjectUpdateRequest,
                          db: AsyncSession = Depends(get_db)):
     try:
-        subject = await subjects_service.update_subject(db, subject_id,
+        student = await subjects_service.update_subject(db, payload.id,
                                                         payload.name)
-        return subject
+        return student
     except HTTPException as e:
         raise e
     except Exception:
