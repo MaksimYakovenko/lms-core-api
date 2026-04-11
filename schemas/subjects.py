@@ -12,3 +12,8 @@ class SubjectGetResponse(BaseModel):
 
 class SubjectCreateRequest(BaseModel):
     name: str = Field(min_length=2, max_length=150)
+
+
+class SubjectUpdateRequest(BaseModel):
+    id: int
+    name: str = Field(min_length=2, max_length=150)
