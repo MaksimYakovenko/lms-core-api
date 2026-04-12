@@ -12,18 +12,9 @@ from routers.subjects import router as subjects_router
 from routers.journals import router as journals_router
 from routers.lessons import router as lessons_router
 from routers.grades import router as grades_router
+from routers.total_count import router as total_count_router
 from db.database import engine, Base
-from models.auth_model import User
-from models.news_model import News
-from models.admin_model import Admins
-from models.teacher_model import Teachers
-from models.student_model import Students
-from models.group_model import Groups
-from models.subject_model import Subjects
-from models.teacher_subject import TeacherSubject
-from models.journal_model import Journal
-from models.lesson_model import Lesson
-from models.grade_model import Grade
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -59,3 +50,4 @@ app.include_router(subjects_router)
 app.include_router(journals_router)
 app.include_router(lessons_router)
 app.include_router(grades_router)
+app.include_router(total_count_router)
