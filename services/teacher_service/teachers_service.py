@@ -17,6 +17,7 @@ class TeacherService:
                              email: str,
                              name: str,
                              role: str,
+                             user_status: str = "INVITED"
                              ) -> Teachers:
         admin_res = await db.execute(
             select(Admins).where(Admins.email == email))
@@ -36,7 +37,8 @@ class TeacherService:
         teacher = Teachers(
             email=email,
             name=name,
-            role=role
+            role=role,
+            status=user_status
         )
 
         res = await TeacherRepository.create(db, teacher)

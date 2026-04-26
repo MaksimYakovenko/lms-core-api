@@ -18,6 +18,7 @@ class AdminGetResponse(BaseModel):
     email: EmailStr
     name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
+    status: str = Field("INVITED", min_length=2, max_length=20)
     last_login: Optional[datetime] = None
 
 

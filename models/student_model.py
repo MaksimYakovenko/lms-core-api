@@ -11,6 +11,6 @@ class Students(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(100))
     role: Mapped[str] = mapped_column(String(20))
-    status: Mapped[str] = mapped_column(String(20), server_default="ACTIVE")
+    status: Mapped[str] = mapped_column(String(20), server_default="INVITED")
     group_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("groups.id"), nullable=True)
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)

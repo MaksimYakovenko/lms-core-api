@@ -18,6 +18,7 @@ class TeacherGetResponse(BaseModel):
     email: EmailStr
     name: str = Field("Unregistered", min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
+    user_status: str = Field("INVITED", min_length=2, max_length=20)
     last_login: Optional[datetime] = None
     group_ids: List[int] = []
 
@@ -59,4 +60,3 @@ class TeacherSubjectResponse(BaseModel):
 class TeacherSubjectsListResponse(BaseModel):
     teacher_id: int
     subjects: List[TeacherSubjectResponse]
-

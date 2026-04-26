@@ -11,6 +11,7 @@ class StudentGetResponse(BaseModel):
     name: str = Field(min_length=2, max_length=100)
     role: str = Field(min_length=2, max_length=20)
     group_id: Optional[int] = None
+    status: str = Field("INVITED", min_length=2, max_length=20)
     last_login: Optional[datetime] = None
 
 

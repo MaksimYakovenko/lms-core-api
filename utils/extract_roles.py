@@ -28,14 +28,14 @@ async def extract_role(db: AsyncSession,
         await db.execute(
             update(Teachers)
             .where(Teachers.email == email)
-            .values(name=full_name)
+            .values(name=full_name, status="ACTIVE")
         )
     elif admin:
         role = "ADMIN"
         await db.execute(
             update(Admins)
             .where(Admins.email == email)
-            .values(name=full_name)
+            .values(name=full_name, status="ACTIVE")
         )
     else:
         student_res = await db.execute(
@@ -46,9 +46,16 @@ async def extract_role(db: AsyncSession,
             student = Students(
                 email=email,
                 name=full_name,
-                role="STUDENT"
+                role="STUDENT",
+                status="ACTIVE"
             )
             db.add(student)
+        else:
+            await db.execute(
+                update(Students)
+                .where(Students.email == email)
+                .values(name=full_name, status="ACTIVE")
+            )
 
     return role
 
