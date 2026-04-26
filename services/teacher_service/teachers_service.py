@@ -127,65 +127,51 @@ class TeacherService:
         return teacher
 
     @staticmethod
-    async def assign_subject_to_teacher(db: AsyncSession, teacher_id: int, subject_id: int):
+    async def assign_teacher_to_subjects(db: AsyncSession, teacher_id: int,
+                                       subject_ids: list[int]):
         teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
-
-        subject_res = await db.execute(select(Subjects).where(Subjects.id == subject_id))
-        subject = subject_res.scalar_one_or_none()
-        if subject is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not found")
-
-        existing = await db.execute(
-            select(TeacherSubject).where(
-                TeacherSubject.teacher_id == teacher_id,
-                TeacherSubject.subject_id == subject_id
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Teacher not found"
             )
-        )
-        if existing.scalar_one_or_none() is not None:
-            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Subject already assigned to this teacher")
 
-        ts = TeacherSubject(teacher_id=teacher_id, subject_id=subject_id)
-        db.add(ts)
-        await db.commit()
+        subjects_res = await db.execute(
+            select(Subjects).where(Subjects.id.in_(subject_ids)))
+        subjects = subjects_res.scalars().all()
 
-    @staticmethod
-    async def remove_subject_from_teacher(db: AsyncSession, teacher_id: int, subject_id: int):
-        teacher = await TeacherRepository.get_by_id(db, teacher_id)
-        if teacher is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
-
-        ts_res = await db.execute(
-            select(TeacherSubject).where(
-                TeacherSubject.teacher_id == teacher_id,
-                TeacherSubject.subject_id == subject_id
+        if len(subjects) != len(subject_ids):
+            found_ids = {s.id for s in subjects}
+            missing = [sid for sid in subject_ids if sid not in found_ids]
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Subjects not found: {missing}"
             )
-        )
-        ts = ts_res.scalar_one_or_none()
-        if ts is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Subject not assigned to this teacher")
 
-        await db.delete(ts)
+        teacher.subjects = list(subjects)
+        await TeacherRepository.update(db, teacher)
         await db.commit()
+        await db.refresh(teacher)
+        teacher.subject_ids = [s.id for s in teacher.subjects]
+        return teacher
 
-    @staticmethod
-    async def get_teacher_subjects(db: AsyncSession, teacher_id: int) -> list[Subjects]:
-        teacher = await TeacherRepository.get_by_id(db, teacher_id)
-        if teacher is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
-
-        ts_res = await db.execute(
-            select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
-        )
-        teacher_subjects = ts_res.scalars().all()
-        subject_ids = [ts.subject_id for ts in teacher_subjects]
-
-        if not subject_ids:
-            return []
-
-        subjects_res = await db.execute(select(Subjects).where(Subjects.id.in_(subject_ids)))
-        return subjects_res.scalars().all()
+    # @staticmethod
+    # async def get_teacher_subjects(db: AsyncSession, teacher_id: int) -> list[Subjects]:
+    #     teacher = await TeacherRepository.get_by_id(db, teacher_id)
+    #     if teacher is None:
+    #         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
+    #
+    #     ts_res = await db.execute(
+    #         select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
+    #     )
+    #     teacher_subjects = ts_res.scalars().all()
+    #     subject_ids = [ts.subject_id for ts in teacher_subjects]
+    #
+    #     if not subject_ids:
+    #         return []
+    #
+    #     subjects_res = await db.execute(select(Subjects).where(Subjects.id.in_(subject_ids)))
+    #     return subjects_res.scalars().all()
 
 
 teacher_service = TeacherService()
