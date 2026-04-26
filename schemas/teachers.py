@@ -21,6 +21,7 @@ class TeacherGetResponse(BaseModel):
     user_status: str = Field("INVITED", min_length=2, max_length=20)
     last_login: Optional[datetime] = None
     group_ids: List[int] = []
+    subject_ids: List[int] = []
 
 
 class TeacherDeleteResponse(BaseModel):
@@ -37,6 +38,11 @@ class AssignTeacherToGroupsRequest(BaseModel):
     group_ids: list[int]
 
 
+class AssignTeacherToSubjectsRequest(BaseModel):
+    teacher_id: int
+    subject_ids: list[int]
+
+
 class AssignTeacherToGroupsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -45,6 +51,7 @@ class AssignTeacherToGroupsResponse(BaseModel):
     role: str
     last_login: Optional[datetime] = None
     group_ids: List[int] = []
+    subject_ids: List[int] = []
 
 
 class AssignSubjectToTeacherRequest(BaseModel):

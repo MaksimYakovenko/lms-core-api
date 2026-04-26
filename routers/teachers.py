@@ -11,7 +11,8 @@ from schemas.teachers import (TeacherCreateRequest, TeacherCreateResponse, \
                               AssignTeacherToGroupsResponse,
                               AssignSubjectToTeacherRequest,
                               TeacherSubjectResponse,
-                              TeacherSubjectsListResponse)
+                              TeacherSubjectsListResponse,
+                              AssignTeacherToSubjectsRequest)
 from services.teacher_service.teachers_service import teacher_service
 from dependencies.require_roles import require_roles
 
@@ -96,6 +97,25 @@ async def assign_student_to_group(
             content={"message": "Internal server error"}
         )
 
+@router.put("/assign_to_subjects",
+            response_model=AssignTeacherToGroupsResponse,
+            dependencies=[Depends(require_roles("ADMIN"))])
+async def assign_teacher_to_subjects(
+        request: AssignTeacherToSubjectsRequest,
+        db: AsyncSession = Depends(get_db)
+):
+    try:
+        teacher = await teacher_service.assign_teacher_to_subjects(
+            db, request.teacher_id, request.subject_ids
+        )
+        return teacher
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": f"{e}"}
+        )
 
 @router.delete("/delete_teacher/{id}", dependencies=[Depends(require_roles(
     "ADMIN"))], response_model=TeacherDeleteResponse)
@@ -115,68 +135,68 @@ async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
         )
 
 
-@router.post("/{teacher_id}/subjects",
-             status_code=status.HTTP_201_CREATED,
-             dependencies=[Depends(require_roles("ADMIN"))])
-async def assign_subject_to_teacher(
-        teacher_id: int,
-        payload: AssignSubjectToTeacherRequest,
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        await teacher_service.assign_subject_to_teacher(db, teacher_id, payload.subject_id)
-        return JSONResponse(
-            status_code=status.HTTP_201_CREATED,
-            content={"message": "Subject assigned to teacher"}
-        )
-    except HTTPException:
-        raise
-    except Exception:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
-        )
+# @router.post("/{teacher_id}/subjects",
+#              status_code=status.HTTP_201_CREATED,
+#              dependencies=[Depends(require_roles("ADMIN"))])
+# async def assign_subject_to_teacher(
+#         teacher_id: int,
+#         payload: AssignSubjectToTeacherRequest,
+#         db: AsyncSession = Depends(get_db)
+# ):
+#     try:
+#         await teacher_service.assign_subject_to_teacher(db, teacher_id, payload.subject_id)
+#         return JSONResponse(
+#             status_code=status.HTTP_201_CREATED,
+#             content={"message": "Subject assigned to teacher"}
+#         )
+#     except HTTPException:
+#         raise
+#     except Exception:
+#         return JSONResponse(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             content={"message": "Internal server error"}
+#         )
 
 
-@router.delete("/{teacher_id}/subjects/{subject_id}",
-               dependencies=[Depends(require_roles("ADMIN"))])
-async def remove_subject_from_teacher(
-        teacher_id: int,
-        subject_id: int,
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        await teacher_service.remove_subject_from_teacher(db, teacher_id, subject_id)
-        return JSONResponse(
-            status_code=status.HTTP_200_OK,
-            content={"message": "Subject removed from teacher"}
-        )
-    except HTTPException:
-        raise
-    except Exception:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
-        )
+# @router.delete("/{teacher_id}/subjects/{subject_id}",
+#                dependencies=[Depends(require_roles("ADMIN"))])
+# async def remove_subject_from_teacher(
+#         teacher_id: int,
+#         subject_id: int,
+#         db: AsyncSession = Depends(get_db)
+# ):
+#     try:
+#         await teacher_service.remove_subject_from_teacher(db, teacher_id, subject_id)
+#         return JSONResponse(
+#             status_code=status.HTTP_200_OK,
+#             content={"message": "Subject removed from teacher"}
+#         )
+#     except HTTPException:
+#         raise
+#     except Exception:
+#         return JSONResponse(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             content={"message": "Internal server error"}
+#         )
 
 
-@router.get("/{teacher_id}/subjects",
-            response_model=TeacherSubjectsListResponse,
-            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
-async def get_teacher_subjects(
-        teacher_id: int,
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        subjects = await teacher_service.get_teacher_subjects(db, teacher_id)
-        return TeacherSubjectsListResponse(
-            teacher_id=teacher_id,
-            subjects=[TeacherSubjectResponse(id=s.id, name=s.name) for s in subjects]
-        )
-    except HTTPException:
-        raise
-    except Exception:
-        return JSONResponse(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
-        )
+# @router.get("/{teacher_id}/subjects",
+#             response_model=TeacherSubjectsListResponse,
+#             dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+# async def get_teacher_subjects(
+#         teacher_id: int,
+#         db: AsyncSession = Depends(get_db)
+# ):
+#     try:
+#         subjects = await teacher_service.get_teacher_subjects(db, teacher_id)
+#         return TeacherSubjectsListResponse(
+#             teacher_id=teacher_id,
+#             subjects=[TeacherSubjectResponse(id=s.id, name=s.name) for s in subjects]
+#         )
+#     except HTTPException:
+#         raise
+#     except Exception:
+#         return JSONResponse(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             content={"message": "Internal server error"}
+#         )
