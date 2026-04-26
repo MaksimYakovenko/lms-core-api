@@ -27,7 +27,8 @@ async def create_teacher(payload: TeacherCreateRequest,
             db,
             email=payload.email,
             name="Unregistered",
-            role=payload.role
+            role=payload.role,
+            user_status="INVITED"
         )
         return JSONResponse(
             status_code=status.HTTP_201_CREATED,

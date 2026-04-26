@@ -18,7 +18,7 @@ class Teachers(Base):
     email: Mapped[str] = mapped_column(String(100), unique=True, index=True)
     name: Mapped[str] = mapped_column(String(100))
     role: Mapped[str] = mapped_column(String(20))
-    status: Mapped[str] = mapped_column(String(20), server_default="ACTIVE")
+    status: Mapped[str] = mapped_column(String(20), server_default="INVITED")
     last_login: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     groups: Mapped[List["Groups"]] = relationship(

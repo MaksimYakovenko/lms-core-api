@@ -32,7 +32,8 @@ class AdminService:
         admin = Admins(
             email=email,
             name=name,
-            role=role
+            role=role,
+            status="INVITED"
         )
 
         res = await AdminRepository.create(db, admin)
