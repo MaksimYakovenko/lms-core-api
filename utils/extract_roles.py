@@ -56,7 +56,7 @@ async def extract_role(db: AsyncSession,
                 .where(Students.email == email)
                 .values(name=full_name, status="ACTIVE")
             )
-
+    await db.commit()
     return role
 
 
@@ -82,3 +82,4 @@ async def update_last_login(db: AsyncSession, user: User) -> None:
             .where(Students.email == user.email)
             .values(last_login=current_time)
         )
+    await db.commit()
