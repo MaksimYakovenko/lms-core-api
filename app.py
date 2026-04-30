@@ -13,6 +13,7 @@ from routers.journals import router as journals_router
 from routers.lessons import router as lessons_router
 from routers.grades import router as grades_router
 from routers.total_count import router as total_count_router
+from routers.appointments import router as appointments_router
 from db.database import engine, Base
 
 
@@ -40,6 +41,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(appointments_router)
 app.include_router(news_router)
 app.include_router(users_router)
 app.include_router(admins_router)
