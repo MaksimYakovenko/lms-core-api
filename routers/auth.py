@@ -30,10 +30,10 @@ async def sign_in(payload: SignInRequest, db: AsyncSession = Depends(get_db)):
         return SignInResponse(**tokens)
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
+            content={"message": f"Error during sign-in: {str(e)}"}
         )
 
 

@@ -135,29 +135,6 @@ async def delete_teacher(teacher_id: int, db: AsyncSession = Depends(get_db)):
         )
 
 
-# @router.post("/{teacher_id}/subjects",
-#              status_code=status.HTTP_201_CREATED,
-#              dependencies=[Depends(require_roles("ADMIN"))])
-# async def assign_subject_to_teacher(
-#         teacher_id: int,
-#         payload: AssignSubjectToTeacherRequest,
-#         db: AsyncSession = Depends(get_db)
-# ):
-#     try:
-#         await teacher_service.assign_subject_to_teacher(db, teacher_id, payload.subject_id)
-#         return JSONResponse(
-#             status_code=status.HTTP_201_CREATED,
-#             content={"message": "Subject assigned to teacher"}
-#         )
-#     except HTTPException:
-#         raise
-#     except Exception:
-#         return JSONResponse(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             content={"message": "Internal server error"}
-#         )
-
-
 # @router.delete("/{teacher_id}/subjects/{subject_id}",
 #                dependencies=[Depends(require_roles("ADMIN"))])
 # async def remove_subject_from_teacher(

@@ -51,6 +51,7 @@ class TeacherService:
         teachers = await TeacherRepository.get_all(db)
         for teacher in teachers:
             teacher.group_ids = [g.id for g in teacher.groups]
+            teacher.subject_ids = [ts.subject_id for ts in teacher.teacher_subjects]
         return teachers
 
     @staticmethod
@@ -76,6 +77,7 @@ class TeacherService:
         teacher = await TeacherRepository.get_by_id(db, teacher_id)
         if teacher is None:
             raise HTTPException(
+
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Teacher not found"
             )
@@ -95,6 +97,7 @@ class TeacherService:
         await db.commit()
         await db.refresh(teacher)
         teacher.group_ids = [g.id for g in teacher.groups]
+        teacher.subject_ids = [ts.subject_id for ts in teacher.teacher_subjects]
         return teacher
 
     @staticmethod
@@ -124,6 +127,7 @@ class TeacherService:
         await db.commit()
         await db.refresh(teacher)
         teacher.group_ids = [g.id for g in teacher.groups]
+        teacher.subject_ids = [ts.subject_id for ts in teacher.teacher_subjects]
         return teacher
 
     @staticmethod
@@ -148,11 +152,25 @@ class TeacherService:
                 detail=f"Subjects not found: {missing}"
             )
 
-        teacher.subjects = list(subjects)
-        await TeacherRepository.update(db, teacher)
+        await db.execute(
+            select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
+        )
+        old_teacher_subjects = await db.execute(
+            select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
+        )
+        for ts in old_teacher_subjects.scalars().all():
+            await db.delete(ts)
+
+        for subject_id in subject_ids:
+            teacher_subject = TeacherSubject(
+                teacher_id=teacher_id,
+                subject_id=subject_id
+            )
+            db.add(teacher_subject)
+
         await db.commit()
         await db.refresh(teacher)
-        teacher.subject_ids = [s.id for s in teacher.subjects]
+        teacher.subject_ids = [ts.subject_id for ts in teacher.teacher_subjects]
         return teacher
 
     # @staticmethod
