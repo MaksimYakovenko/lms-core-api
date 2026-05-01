@@ -6,7 +6,7 @@ from typing import Optional
 from db.database import get_db
 from dependencies.require_roles import require_roles
 from schemas.journals import JournalCreateRequest, JournalResponse, \
-    JournalListResponse, JournalFullResponse
+    JournalListResponse, JournalFullResponse, JournalGroupedResponse
 from services.journal_service.journal_service import journal_service
 
 router = APIRouter(prefix="/journals", tags=["Journals"])
@@ -37,8 +37,8 @@ async def create_journal(
         )
 
 
-@router.get("", response_model=list[JournalListResponse],
-            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+@router.get("", response_model=list[JournalGroupedResponse],
+            dependencies=[Depends(require_roles("ADMIN"))])
 async def get_journals(
         db: AsyncSession = Depends(get_db)
 ):
