@@ -119,7 +119,7 @@ class JournalService:
 
         return JournalFullResponse(
             id=journal.id,
-            group=GroupShort(id=journal.group.id, name=journal.group.name),
+            group=GroupShort(id=journal.group.id, name=journal.group.name, course_number=journal.group.course_number),
             subject=SubjectShort(id=journal.subject.id,
                                  name=journal.subject.name),
             teacher=TeacherShort(id=journal.teacher.id,
