@@ -81,9 +81,26 @@ class JournalService:
         return journal
 
     @staticmethod
-    async def get_journals(db: AsyncSession) -> list[Journal]:
-        res = await db.execute(select(Journal))
-        return res.scalars().all()
+    async def get_journals(db: AsyncSession):
+        result = await db.execute(
+            select(Journal).options(
+                joinedload(Journal.subject),
+                joinedload(Journal.group)
+            )
+        )
+        journals = result.unique().scalars().all()
+
+        grouped = {}
+        for journal in journals:
+            subject_name = journal.subject.name
+            if subject_name not in grouped:
+                grouped[subject_name] = []
+            grouped[subject_name].append(journal.group.name)
+
+        return [
+            {"subject": subject, "groups": groups}
+            for subject, groups in grouped.items()
+        ]
 
     @staticmethod
     async def get_journal_by_id(db: AsyncSession,
@@ -110,7 +127,8 @@ class JournalService:
 
         return JournalFullResponse(
             id=journal.id,
-            group=GroupShort(id=journal.group.id, name=journal.group.name, course_number=journal.group.course_number),
+            group=GroupShort(id=journal.group.id, name=journal.group.name,
+                             course_number=journal.group.course_number),
             subject=SubjectShort(id=journal.subject.id,
                                  name=journal.subject.name),
             teacher=TeacherShort(id=journal.teacher.id,
