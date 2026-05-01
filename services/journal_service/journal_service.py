@@ -81,17 +81,8 @@ class JournalService:
         return journal
 
     @staticmethod
-    async def get_journals(
-            db: AsyncSession,
-            group_id: int | None = None,
-            teacher_id: int | None = None,
-    ) -> list[Journal]:
-        query = select(Journal)
-        if group_id is not None:
-            query = query.where(Journal.group_id == group_id)
-        if teacher_id is not None:
-            query = query.where(Journal.teacher_id == teacher_id)
-        res = await db.execute(query)
+    async def get_journals(db: AsyncSession) -> list[Journal]:
+        res = await db.execute(select(Journal))
         return res.scalars().all()
 
     @staticmethod
