@@ -47,10 +47,10 @@ async def get_journals(
         return journals
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
+            content={"message": f"Internal server error {e}"}
         )
 
 

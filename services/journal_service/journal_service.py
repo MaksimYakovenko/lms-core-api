@@ -1,7 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
+from sqlalchemy.orm import joinedload
 from models.journal_model import Journal
 from models.teacher_model import Teachers
 from models.group_model import Groups
@@ -95,7 +95,12 @@ class JournalService:
             subject_name = journal.subject.name
             if subject_name not in grouped:
                 grouped[subject_name] = []
-            grouped[subject_name].append(journal.group.name)
+            group = journal.group
+            grouped[subject_name].append({
+                "id": group.id,
+                "name": group.name,
+                "course_number": group.course_number,
+            })
 
         return [
             {"subject": subject, "groups": groups}
