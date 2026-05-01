@@ -54,14 +54,20 @@ class JournalResponse(BaseModel):
     assistant: Optional[TeacherShort] = None
 
 
+# class JournalListResponse(BaseModel):
+#     model_config = ConfigDict(from_attributes=True)
+#     id: int
+#     group: GroupShort
+#     subject: SubjectShort
+#     teacher: TeacherShort
+#     assistant: Optional[TeacherShort] = None
+#     lessons: List[LessonResponse] = []
+
+
 class JournalListResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id: int
-    group: GroupShort
     subject: SubjectShort
-    teacher: TeacherShort
-    assistant: Optional[TeacherShort] = None
-    lessons: List[LessonResponse] = []
+    groups: List[GroupShort] = []
 
 
 class JournalFullResponse(BaseModel):

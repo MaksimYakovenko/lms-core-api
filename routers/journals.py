@@ -5,13 +5,15 @@ from typing import Optional
 
 from db.database import get_db
 from dependencies.require_roles import require_roles
-from schemas.journals import JournalCreateRequest, JournalResponse, JournalListResponse, JournalFullResponse
+from schemas.journals import JournalCreateRequest, JournalResponse, \
+    JournalListResponse, JournalFullResponse
 from services.journal_service.journal_service import journal_service
 
 router = APIRouter(prefix="/journals", tags=["Journals"])
 
 
-@router.post("", response_model=JournalResponse, status_code=status.HTTP_201_CREATED,
+@router.post("", response_model=JournalResponse,
+             status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def create_journal(
         payload: JournalCreateRequest,
@@ -38,12 +40,10 @@ async def create_journal(
 @router.get("", response_model=list[JournalListResponse],
             dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_journals(
-        group_id: Optional[int] = Query(None),
-        teacher_id: Optional[int] = Query(None),
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        journals = await journal_service.get_journals(db, group_id=group_id, teacher_id=teacher_id)
+        journals = await journal_service.get_journals(db)
         return journals
     except HTTPException:
         raise
