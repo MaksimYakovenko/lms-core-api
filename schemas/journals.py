@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List
 from datetime import date
 from schemas.grades import GradeResponse
@@ -26,8 +26,9 @@ class TeacherShort(BaseModel):
 
 
 class GroupShort(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    id: int
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
+    journal_id: int
+    id: int = Field(alias="group_id")
     name: str
     course_number: int
 
