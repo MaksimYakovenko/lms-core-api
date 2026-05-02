@@ -97,7 +97,8 @@ class JournalService:
                 grouped[subject_name] = []
             group = journal.group
             grouped[subject_name].append({
-                "id": group.id,
+                "journal_id": journal.id,
+                "group_id": group.id,
                 "name": group.name,
                 "course_number": group.course_number,
             })
@@ -132,7 +133,7 @@ class JournalService:
 
         return JournalFullResponse(
             id=journal.id,
-            group=GroupShort(id=journal.group.id, name=journal.group.name,
+            group=GroupShort(id=journal.group.group_id, name=journal.group.name,
                              course_number=journal.group.course_number),
             subject=SubjectShort(id=journal.subject.id,
                                  name=journal.subject.name),
