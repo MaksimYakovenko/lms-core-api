@@ -14,6 +14,7 @@ from routers.lessons import router as lessons_router
 from routers.grades import router as grades_router
 from routers.total_count import router as total_count_router
 from routers.appointments import router as appointments_router
+from routers.classrooms import router as classrooms_router
 from db.database import engine, Base
 
 
@@ -49,6 +50,7 @@ app.include_router(teachers_router)
 app.include_router(students_router)
 app.include_router(groups_router)
 app.include_router(subjects_router)
+app.include_router(classrooms_router)
 app.include_router(journals_router)
 app.include_router(lessons_router)
 app.include_router(grades_router)
