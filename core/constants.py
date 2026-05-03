@@ -20,8 +20,27 @@ HEADERS = {
 
 
 class LessonType(str, Enum):
-    LESSON = "LESSON"
-    KR = "КР"
-    SR = "СР"
-    SEM = "СЕМ"
-    TEM = "ТЕМ"
+    LECTURE = "LECTURE"
+    PRACTICE = "PRACTICE"
+    LAB = "LAB"
+    SEMINAR = "SEMINAR"
+    MODULE = "MODULE"
+    EXAM = "EXAM"
+    CREDIT = "CREDIT"
+    COLLOQUIUM = "COLLOQUIUM"
+    CONSULTATION = "CONSULTATION"
+    FACULTATIVE = "FACULTATIVE"
+
+
+LESSON_TYPE_LABELS = {
+    LessonType.LECTURE: "Лекція",
+    LessonType.PRACTICE: "Практична",
+    LessonType.LAB: "Лабораторна",
+    LessonType.SEMINAR: "Семінар",
+    LessonType.MODULE: "Модуль",
+    LessonType.EXAM: "Екзамен",
+    LessonType.CREDIT: "Залік",
+    LessonType.COLLOQUIUM: "Колоквіум",
+    LessonType.CONSULTATION: "Консультація",
+    LessonType.FACULTATIVE: "Факультатив",
+}

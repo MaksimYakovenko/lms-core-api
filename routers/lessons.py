@@ -4,13 +4,30 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from db.database import get_db
 from dependencies.require_roles import require_roles
-from schemas.lessons import LessonCreateRequest, LessonUpdateRequest, LessonResponse
+from schemas.lessons import LessonCreateRequest, LessonUpdateRequest, \
+    LessonResponse
 from services.lesson_service.lesson_service import lesson_service
 
-router = APIRouter(prefix="/journals/{journal_id}/lessons", tags=["Lessons"])
+router = APIRouter(tags=["Lessons"])
 
 
-@router.post("", response_model=LessonResponse, status_code=status.HTTP_201_CREATED,
+@router.get("/lessons/get_lesson_types",
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+async def get_lesson_types():
+    try:
+        lesson_types = await lesson_service.get_lesson_types()
+        return lesson_types
+    except HTTPException:
+        raise
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
+@router.post("/journals/{journal_id}/lessons", response_model=LessonResponse,
+             status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def add_lesson(
         journal_id: int,
@@ -35,7 +52,8 @@ async def add_lesson(
         )
 
 
-@router.get("", response_model=list[LessonResponse],
+@router.get("/journals/{journal_id}/lessons",
+            response_model=list[LessonResponse],
             dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_lessons(
         journal_id: int,
@@ -53,7 +71,8 @@ async def get_lessons(
         )
 
 
-@router.put("/{lesson_id}", response_model=LessonResponse,
+@router.put("/journals/{journal_id}/lessons/{lesson_id}",
+            response_model=LessonResponse,
             dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def update_lesson(
         journal_id: int,
@@ -80,7 +99,8 @@ async def update_lesson(
         )
 
 
-@router.delete("/{lesson_id}", dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+@router.delete("/journals/{journal_id}/lessons/{lesson_id}",
+               dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def delete_lesson(
         journal_id: int,
         lesson_id: int,

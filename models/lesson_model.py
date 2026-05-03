@@ -12,7 +12,8 @@ class Lesson(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     journal_id: Mapped[int] = mapped_column(Integer, ForeignKey("journals.id", ondelete="CASCADE"), nullable=False)
     date: Mapped[date] = mapped_column(Date, nullable=False)
-    lesson_type: Mapped[str] = mapped_column(String(10), nullable=False, default=LessonType.LESSON)
+    lesson_type: Mapped[str] = mapped_column(String(10), nullable=False,
+                                             default=LessonType.LECTURE)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     topic: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
