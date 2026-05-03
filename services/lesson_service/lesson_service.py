@@ -96,5 +96,34 @@ class LessonService:
             for lt in LessonType
         ]
 
+    @staticmethod
+    async def get_lesson_periods() -> list[dict]:
+        return [
+            {
+                "number": 1,
+                "label": "1 пара",
+                "start_time": "08:40",
+                "end_time": "10:15",
+            },
+            {
+                "number": 2,
+                "label": "2 пара",
+                "start_time": "10:35",
+                "end_time": "12:10",
+            },
+            {
+                "number": 3,
+                "label": "3 пара",
+                "start_time": "12:20",
+                "end_time": "13:55",
+            },
+            {
+                "number": 4,
+                "label": "4 пара",
+                "start_time": "14:05",
+                "end_time": "15:35",
+            },
+        ]
+
 
 lesson_service = LessonService()
