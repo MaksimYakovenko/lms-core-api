@@ -26,6 +26,21 @@ async def get_lesson_types():
         )
 
 
+@router.get("/lessons/get_lesson_periods",
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+async def get_lesson_periods():
+    try:
+        lesson_periods = await lesson_service.get_lesson_periods()
+        return lesson_periods
+    except HTTPException:
+        raise
+    except Exception:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": "Internal server error"}
+        )
+
+
 @router.post("/journals/{journal_id}/lessons", response_model=LessonResponse,
              status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
