@@ -5,7 +5,7 @@ from datetime import date
 
 from models.lesson_model import Lesson
 from models.journal_model import Journal
-from core.constants import LessonType
+from core.constants import LessonType, LESSON_TYPE_LABELS
 from repositories.lesson_repository import LessonRepository
 
 
@@ -16,7 +16,7 @@ class LessonService:
             db: AsyncSession,
             journal_id: int,
             lesson_date: date,
-            lesson_type: LessonType = LessonType.LESSON,
+            lesson_type: LessonType = LessonType.LECTURE,
             topic: str | None = None,
     ) -> Lesson:
         journal = await db.get(Journal, journal_id)
@@ -88,6 +88,13 @@ class LessonService:
                                 detail="Lesson not found")
         await LessonRepository.delete(db, lesson)
         await db.commit()
+
+    @staticmethod
+    async def get_lesson_types() -> list[dict]:
+        return [
+            {"value": lt.value, "label": LESSON_TYPE_LABELS[lt]}
+            for lt in LessonType
+        ]
 
 
 lesson_service = LessonService()

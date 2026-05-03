@@ -6,7 +6,7 @@ from core.constants import LessonType
 
 class LessonCreateRequest(BaseModel):
     date: date
-    lesson_type: LessonType = LessonType.LESSON
+    lesson_type: LessonType = LessonType.LECTURE
     topic: Optional[str] = None
 
 
