@@ -7,13 +7,15 @@ from core.constants import LessonType
 class LessonCreateRequest(BaseModel):
     date: date
     lesson_type: LessonType = LessonType.LECTURE
-    topic: Optional[str] = None
+    classroom_id: Optional[int] = None
+    lesson_number: Optional[int] = None
 
 
 class LessonUpdateRequest(BaseModel):
     date: Optional[date] = None
     lesson_type: Optional[LessonType] = None
-    topic: Optional[str] = None
+    classroom_id: Optional[int] = None
+    lesson_number: Optional[int] = None
 
 
 class LessonResponse(BaseModel):
@@ -23,4 +25,5 @@ class LessonResponse(BaseModel):
     date: date
     lesson_type: str
     order_index: int
-    topic: Optional[str] = None
+    lesson_number: Optional[int] = None
+    classroom_id: Optional[int] = None

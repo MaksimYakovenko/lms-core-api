@@ -15,6 +15,8 @@ class Lesson(Base):
     lesson_type: Mapped[str] = mapped_column(String(10), nullable=False,
                                              default=LessonType.LECTURE)
     order_index: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    lesson_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    classroom_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("classrooms.id", ondelete="SET NULL"), nullable=True)
     topic: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     journal = relationship("Journal", back_populates="lessons")
