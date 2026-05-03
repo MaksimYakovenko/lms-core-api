@@ -55,7 +55,8 @@ async def add_lesson(
             journal_id=journal_id,
             lesson_date=payload.date,
             lesson_type=payload.lesson_type,
-            topic=payload.topic,
+            classroom_id=payload.classroom_id,
+            lesson_number=payload.lesson_number,
         )
         return lesson
     except HTTPException:
@@ -102,7 +103,8 @@ async def update_lesson(
             lesson_id=lesson_id,
             lesson_date=payload.date,
             lesson_type=payload.lesson_type,
-            topic=payload.topic,
+            classroom_id=payload.classroom_id,
+            lesson_number=payload.lesson_number,
         )
         return lesson
     except HTTPException:

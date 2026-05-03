@@ -10,7 +10,7 @@ class LessonResponse(BaseModel):
     date: date
     lesson_type: str
     order_index: int
-    topic: Optional[str] = None
+    # topic: Optional[str] = None
 
 
 class SubjectShort(BaseModel):
