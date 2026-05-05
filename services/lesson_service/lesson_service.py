@@ -5,6 +5,7 @@ from datetime import date
 
 from models.lesson_model import Lesson
 from models.journal_model import Journal
+from models.classroom_model import Classroom
 from core.constants import LessonType, LESSON_TYPE_LABELS
 from repositories.lesson_repository import LessonRepository
 
@@ -68,6 +69,12 @@ class LessonService:
         if lesson is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail="Lesson not found")
+
+        if classroom_id is not None:
+            classroom = await db.get(Classroom, classroom_id)
+            if classroom is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail="Classroom not found")
 
         if lesson_date is not None:
             lesson.date = lesson_date
