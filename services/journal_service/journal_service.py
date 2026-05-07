@@ -148,7 +148,9 @@ class JournalService:
                     date=l.date,
                     lesson_type=l.lesson_type,
                     order_index=l.order_index,
-                    topic=l.topic,
+                    title=l.title,
+                    description=l.description,
+                    classroom_id=l.classroom_id,
                 )
                 for l in sorted(journal.lessons, key=lambda x: x.order_index)
             ],
