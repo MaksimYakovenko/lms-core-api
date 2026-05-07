@@ -20,6 +20,8 @@ class LessonService:
             lesson_type: LessonType = LessonType.LECTURE,
             classroom_id: int | None = None,
             lesson_number: int | None = None,
+            lesson_title: str = "",
+            lesson_description: str = "",
     ) -> Lesson:
         journal = await db.get(Journal, journal_id)
         if journal is None:
@@ -39,6 +41,8 @@ class LessonService:
             order_index=max_order + 1,
             classroom_id=classroom_id,
             lesson_number=lesson_number,
+            lesson_title=lesson_title,
+            lesson_description=lesson_description,
         )
         res = await LessonRepository.create(db, lesson)
         await db.commit()
@@ -63,6 +67,8 @@ class LessonService:
             lesson_type: LessonType | None = None,
             classroom_id: int | None = None,
             lesson_number: int | None = None,
+            lesson_title: str | None = None,
+            lesson_description: str | None = None,
     ) -> Lesson:
         lesson = await LessonRepository.get_by_id_and_journal_id(db, lesson_id,
                                                                  journal_id)
@@ -84,6 +90,10 @@ class LessonService:
             lesson.classroom_id = classroom_id
         if lesson_number is not None:
             lesson.lesson_number = lesson_number
+        if lesson_title is not None:
+            lesson.lesson_title = lesson_title
+        if lesson_description is not None:
+            lesson.lesson_description = lesson_description
 
         await LessonRepository.update(db, lesson)
         await db.commit()

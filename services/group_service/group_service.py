@@ -28,4 +28,28 @@ class GroupService:
         return await GroupRepository.get_all(db)
 
 
+    @staticmethod
+    async def delete_group(db: AsyncSession, group_id: int):
+        group = await GroupRepository.get_by_id(db, group_id)
+        if group is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Group not found"
+            )
+        await GroupRepository.delete(db, group)
+
+
+    @staticmethod
+    async def update_group(db: AsyncSession, group_id: int, name: str,
+                            course_number: int):
+          group = await GroupRepository.get_by_id(db, group_id)
+          if group is None:
+                raise HTTPException(
+                 status_code=status.HTTP_404_NOT_FOUND,
+                 detail="Group not found"
+                )
+          group.name = name
+          group.course_number = course_number
+          await GroupRepository.update(db, group)
+
 group_service = GroupService()

@@ -1,3 +1,4 @@
+import openpyxl
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -172,6 +173,49 @@ class JournalService:
                                 detail="Journal not found")
         await db.delete(journal)
         await db.commit()
+
+
+    @staticmethod
+    async def export_journal_to_excel(db: AsyncSession, journal_id: int) -> bytes:
+        journal = await db.get(Journal, journal_id)
+        if journal is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Journal not found")
+
+        students_res = await db.execute(
+            select(Students)
+            .where(Students.group_id == journal.group_id)
+            .order_by(Students.name)
+        )
+        students = students_res.scalars().all()
+
+        lesson_ids = [l.id for l in journal.lessons]
+        grades = []
+        if lesson_ids:
+            grades_res = await db.execute(
+                select(Grade).where(Grade.lesson_id.in_(lesson_ids))
+            )
+            grades = grades_res.scalars().all()
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = f"{journal.subject.name} - {journal.group.name}"
+
+        ws.cell(row=1, column=1, value="Ім\'я студента")
+        for idx, lesson in enumerate(sorted(journal.lessons, key=lambda x: x.order_index)):
+            ws.cell(row=1, column=idx + 2, value=f"{lesson.date} ({lesson.lesson_type})")
+
+        for row_idx, student in enumerate(students, start=2):
+            ws.cell(row=row_idx, column=1, value=student.name)
+            for col_idx, lesson in enumerate(sorted(journal.lessons, key=lambda x: x.order_index), start=2):
+                grade = next((g for g in grades if g.lesson_id == lesson.id and g.student_id == student.id), None)
+                if grade:
+                    ws.cell(row=row_idx, column=col_idx, value=grade.value)
+
+        from io import BytesIO
+        output = BytesIO()
+        wb.save(output)
+        return output.getvalue()
 
 
 journal_service = JournalService()

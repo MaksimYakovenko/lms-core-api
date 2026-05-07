@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 
@@ -90,3 +90,13 @@ async def delete_journal(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
+
+
+@router.get("/{journal_id}/export")
+async def export_journal(journal_id: int, db: AsyncSession = Depends(get_db)):
+    data = await journal_service.export_journal_to_excel(db, journal_id)
+    return Response(
+        content=data,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename=journal_{journal_id}.xlsx"}
+    )
