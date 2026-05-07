@@ -18,7 +18,8 @@ class Lesson(Base):
     lesson_number: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     classroom_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("classrooms.id", ondelete="SET NULL"), nullable=True)
     topic: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
-
+    title: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
+    description: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
     journal = relationship("Journal", back_populates="lessons")
     grades: Mapped[list["Grade"]] = relationship(
         "Grade", back_populates="lesson", lazy="selectin",

@@ -57,6 +57,8 @@ async def add_lesson(
             lesson_type=payload.lesson_type,
             classroom_id=payload.classroom_id,
             lesson_number=payload.lesson_number,
+            lesson_title=payload.title,
+            lesson_description=payload.description,
         )
         return lesson
     except HTTPException:
@@ -80,10 +82,10 @@ async def get_lessons(
         return lessons
     except HTTPException:
         raise
-    except Exception:
+    except Exception as e:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            content={"message": "Internal server error"}
+            content={"message": f"Internal server error {e}"}
         )
 
 
@@ -105,6 +107,8 @@ async def update_lesson(
             lesson_type=payload.lesson_type,
             classroom_id=payload.classroom_id,
             lesson_number=payload.lesson_number,
+            lesson_title=payload.title,
+            lesson_description=payload.description,
         )
         return lesson
     except HTTPException:

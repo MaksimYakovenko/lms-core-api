@@ -9,6 +9,8 @@ class LessonCreateRequest(BaseModel):
     lesson_type: LessonType = LessonType.LECTURE
     classroom_id: Optional[int] = None
     lesson_number: Optional[int] = None
+    title: str
+    description: Optional[str] = None
 
 
 class LessonUpdateRequest(BaseModel):
@@ -16,6 +18,8 @@ class LessonUpdateRequest(BaseModel):
     lesson_type: Optional[LessonType] = None
     classroom_id: Optional[int] = None
     lesson_number: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
 
 
 class LessonResponse(BaseModel):
@@ -27,3 +31,5 @@ class LessonResponse(BaseModel):
     order_index: int
     lesson_number: Optional[int] = None
     classroom_id: Optional[int] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
