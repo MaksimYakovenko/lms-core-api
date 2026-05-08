@@ -1,7 +1,7 @@
-from sqlalchemy import Integer, String, Date, ForeignKey
+from sqlalchemy import Integer, String, Date, DateTime, ForeignKey, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
-from datetime import date
+from datetime import date, datetime
 from db.database import Base
 from core.constants import LessonType
 
@@ -20,6 +20,7 @@ class Lesson(Base):
     topic: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
     title: Mapped[Optional[str]] = mapped_column(String(200), nullable=True)
     description: Mapped[Optional[str]] = mapped_column(String(1000), nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     journal = relationship("Journal", back_populates="lessons")
     grades: Mapped[list["Grade"]] = relationship(
         "Grade", back_populates="lesson", lazy="selectin",

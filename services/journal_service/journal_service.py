@@ -1,6 +1,6 @@
 import openpyxl
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from models.journal_model import Journal
@@ -10,6 +10,7 @@ from models.subject_model import Subjects
 from models.student_model import Students
 from models.teacher_subject import TeacherSubject
 from models.grade_model import Grade
+from models.lesson_model import Lesson
 from schemas.journals import JournalFullResponse, JournalListResponse, \
     LessonResponse, GroupShort, SubjectShort, TeacherShort, StudentShort
 from schemas.grades import GradeResponse
@@ -86,10 +87,29 @@ class JournalService:
         result = await db.execute(
             select(Journal).options(
                 joinedload(Journal.subject),
-                joinedload(Journal.group)
+                joinedload(Journal.group),
+                joinedload(Journal.teacher),
             )
         )
         journals = result.unique().scalars().all()
+
+        # Compute last_updated per journal: max(updated_at) from lessons and grades
+        lesson_max_res = await db.execute(
+            select(Lesson.journal_id, func.max(Lesson.updated_at).label("max_updated"))
+            .group_by(Lesson.journal_id)
+        )
+        lesson_max = {row.journal_id: row.max_updated for row in lesson_max_res}
+
+        grade_max_res = await db.execute(
+            select(Lesson.journal_id, func.max(Grade.updated_at).label("max_updated"))
+            .join(Grade, Grade.lesson_id == Lesson.id)
+            .group_by(Lesson.journal_id)
+        )
+        grade_max = {row.journal_id: row.max_updated for row in grade_max_res}
+
+        def get_last_updated(journal_id):
+            vals = [v for v in [lesson_max.get(journal_id), grade_max.get(journal_id)] if v is not None]
+            return max(vals) if vals else None
 
         grouped = {}
         for journal in journals:
@@ -102,6 +122,8 @@ class JournalService:
                 "group_id": group.id,
                 "name": group.name,
                 "course_number": group.course_number,
+                "teacher_name": journal.teacher.name if journal.teacher else None,
+                "last_updated": get_last_updated(journal.id),
             })
 
         return [

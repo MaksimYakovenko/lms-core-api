@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional, List
-from datetime import date
+from datetime import date, datetime
 from schemas.grades import GradeResponse
 
 
@@ -33,6 +33,8 @@ class GroupShort(BaseModel):
     id: int = Field(alias="group_id")
     name: str
     course_number: int
+    teacher_name: Optional[str] = None
+    last_updated: Optional[datetime] = None
 
 
 class StudentShort(BaseModel):
