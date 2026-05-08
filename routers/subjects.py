@@ -32,7 +32,7 @@ async def get_my_subjects(
 
 
 @router.get("/get_subjects", response_model=list[SubjectGetResponse],
-            dependencies=[Depends(require_roles("ADMIN"))])
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_students(db: AsyncSession = Depends(get_db)):
     try:
         subjects = await subjects_service.get_subjects(db)
