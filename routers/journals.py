@@ -12,6 +12,26 @@ from services.journal_service.journal_service import journal_service
 router = APIRouter(prefix="/journals", tags=["Journals"])
 
 
+@router.get("/my", response_model=list[JournalGroupedResponse],
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
+async def get_my_journals(
+        db: AsyncSession = Depends(get_db),
+        teacher_id: Optional[int] = Query(None),
+        assistant_id: Optional[int] = Query(None)
+):
+    try:
+        journals = await journal_service.get_my_journals(db, teacher_id,
+                                                         assistant_id)
+        return journals
+    except HTTPException:
+        raise
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message": f"Internal server error {e}"}
+        )
+
+
 @router.post("", response_model=JournalResponse,
              status_code=status.HTTP_201_CREATED,
              dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
@@ -98,5 +118,6 @@ async def export_journal(journal_id: int, db: AsyncSession = Depends(get_db)):
     return Response(
         content=data,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename=journal_{journal_id}.xlsx"}
+        headers={
+            "Content-Disposition": f"attachment; filename=journal_{journal_id}.xlsx"}
     )

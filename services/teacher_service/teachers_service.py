@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.teacher_model import Teachers
 from models.admin_model import Admins
@@ -110,6 +110,8 @@ class TeacherService:
                 detail="Teacher not found"
             )
 
+        group_ids = list(dict.fromkeys(group_ids))
+
         groups_res = await db.execute(
             select(Groups).where(Groups.id.in_(group_ids)))
         groups = groups_res.scalars().all()
@@ -140,6 +142,8 @@ class TeacherService:
                 detail="Teacher not found"
             )
 
+        subject_ids = list(dict.fromkeys(subject_ids))  # deduplicate, preserve order
+
         subjects_res = await db.execute(
             select(Subjects).where(Subjects.id.in_(subject_ids)))
         subjects = subjects_res.scalars().all()
@@ -153,13 +157,9 @@ class TeacherService:
             )
 
         await db.execute(
-            select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
+            delete(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
         )
-        old_teacher_subjects = await db.execute(
-            select(TeacherSubject).where(TeacherSubject.teacher_id == teacher_id)
-        )
-        for ts in old_teacher_subjects.scalars().all():
-            await db.delete(ts)
+        await db.flush()
 
         for subject_id in subject_ids:
             teacher_subject = TeacherSubject(

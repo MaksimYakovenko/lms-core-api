@@ -241,5 +241,28 @@ class JournalService:
         wb.save(output)
         return output.getvalue()
 
+    @staticmethod
+    async def get_my_journals(db: AsyncSession, teacher_id: int):
+        result = await db.execute(
+            select(Journal).where(
+                (Journal.teacher_id == teacher_id) | (Journal.assistant_id == teacher_id)
+            ).options(
+                joinedload(Journal.subject),
+                joinedload(Journal.group),
+                joinedload(Journal.teacher),
+            )
+        )
+        journals = result.unique().scalars().all()
+
+        return [
+            JournalListResponse(
+                id=journal.id,
+                subject_name=journal.subject.name,
+                group_name=journal.group.name,
+                teacher_name=journal.teacher.name if journal.teacher else None,
+            )
+            for journal in journals
+        ]
+
 
 journal_service = JournalService()

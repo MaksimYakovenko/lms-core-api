@@ -9,7 +9,21 @@ from schemas.groups import GroupCreateRequest
 router = APIRouter(prefix="/groups", tags=["Groups"])
 
 
-@router.get("/get_groups")
+@router.get("/my", dependencies=[Depends(require_roles("TEACHER"))])
+async def get_my_groups(db: AsyncSession = Depends(get_db)):
+    try:
+        groups = await group_service.get_my_groups(db)
+        return groups
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error"
+        )
+
+
+@router.get("/get_groups", dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_groups(db: AsyncSession = Depends(get_db)):
     try:
         groups = await group_service.get_groups(db)

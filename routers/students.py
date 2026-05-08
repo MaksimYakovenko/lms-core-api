@@ -14,7 +14,7 @@ router = APIRouter(prefix="/students", tags=["Students"])
 
 
 @router.get("/get_students", response_model=list[StudentGetResponse],
-            )
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_students(db: AsyncSession = Depends(get_db)):
     try:
         students = await students_service.get_students(db)
@@ -24,6 +24,7 @@ async def get_students(db: AsyncSession = Depends(get_db)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message": "Internal server error"}
         )
+
 
 @router.delete("/delete_student/{id}",
                dependencies=[Depends(require_roles("ADMIN"))])
@@ -49,7 +50,8 @@ async def delete_student(student_id: int, db: AsyncSession = Depends(get_db)):
 async def update_student(payload: StudentUpdateRequest,
                          db: AsyncSession = Depends(get_db)):
     try:
-        student = await students_service.update_student(db, payload.id, payload.name)
+        student = await students_service.update_student(db, payload.id,
+                                                        payload.name)
         return student
     except HTTPException as e:
         raise e

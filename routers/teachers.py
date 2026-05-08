@@ -45,7 +45,7 @@ async def create_teacher(payload: TeacherCreateRequest,
 
 
 @router.get("/get_teachers", response_model=list[TeacherGetResponse],
-            dependencies=[Depends(require_roles("ADMIN"))])
+            dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_teachers(db: AsyncSession = Depends(get_db)):
     try:
         teachers = await teacher_service.get_teachers(db)
