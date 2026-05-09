@@ -1,10 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
 from typing import Optional
 
 from db.database import get_db
 from dependencies.require_roles import require_roles
+from dependencies.current_user import get_current_user
+from models.auth_model import User
+from models.teacher_model import Teachers
 from schemas.journals import JournalCreateRequest, JournalResponse, \
     JournalListResponse, JournalFullResponse, JournalGroupedResponse
 from services.journal_service.journal_service import journal_service
@@ -16,12 +20,14 @@ router = APIRouter(prefix="/journals", tags=["Journals"])
             dependencies=[Depends(require_roles("ADMIN", "TEACHER"))])
 async def get_my_journals(
         db: AsyncSession = Depends(get_db),
-        teacher_id: Optional[int] = Query(None),
-        assistant_id: Optional[int] = Query(None)
+        current_user: User = Depends(get_current_user)
 ):
     try:
-        journals = await journal_service.get_my_journals(db, teacher_id,
-                                                         assistant_id)
+        teacher_res = await db.execute(select(Teachers).where(Teachers.email == current_user.email))
+        teacher = teacher_res.scalar_one_or_none()
+        if teacher is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Teacher not found")
+        journals = await journal_service.get_my_journals(db, teacher.id)
         return journals
     except HTTPException:
         raise

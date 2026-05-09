@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from models.group_model import Groups
+from models.teacher_model import teacher_groups
 from repositories.group_repository import GroupRepository
 from sqlalchemy.future import select
 
@@ -53,7 +54,9 @@ class GroupService:
     @staticmethod
     async def get_my_groups(db: AsyncSession, teacher_id: int) -> list[Groups]:
         res = await db.execute(
-            select(Groups).where(Groups.teacher_id == teacher_id)
+            select(Groups).join(
+                teacher_groups, teacher_groups.c.group_id == Groups.id
+            ).where(teacher_groups.c.teacher_id == teacher_id)
         )
         return res.scalars().all()
 

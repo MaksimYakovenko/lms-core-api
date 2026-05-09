@@ -254,14 +254,24 @@ class JournalService:
         )
         journals = result.unique().scalars().all()
 
+        grouped = {}
+        for journal in journals:
+            subject_name = journal.subject.name
+            if subject_name not in grouped:
+                grouped[subject_name] = []
+            group = journal.group
+            grouped[subject_name].append({
+                "journal_id": journal.id,
+                "group_id": group.id,
+                "name": group.name,
+                "course_number": group.course_number,
+                "teacher_name": journal.teacher.name if journal.teacher else None,
+                "last_updated": None,
+            })
+
         return [
-            JournalListResponse(
-                id=journal.id,
-                subject_name=journal.subject.name,
-                group_name=journal.group.name,
-                teacher_name=journal.teacher.name if journal.teacher else None,
-            )
-            for journal in journals
+            {"subject": subject, "groups": groups}
+            for subject, groups in grouped.items()
         ]
 
 
