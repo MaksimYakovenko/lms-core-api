@@ -147,5 +147,13 @@ class LessonService:
             },
         ]
 
+    @staticmethod
+    async def get_my_lessons(db: AsyncSession, user_id: int) -> list[Lesson]:
+        res = await db.execute(
+            select(Lesson).join(Journal).where(Journal.teacher_id == user_id)
+        )
+        lessons = res.scalars().all()
+        return lessons
+
 
 lesson_service = LessonService()
