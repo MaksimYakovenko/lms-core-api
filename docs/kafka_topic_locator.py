@@ -1,50 +1,61 @@
+"""
+Module `kafka_topic_locator` provides functionality to locate Kafka topics in the EPAM Data Catalog.
+"""
+
 from __future__ import annotations
 
 import os
-from collections.abc import Callable
-import asyncpg
+from typing import Awaitable, Callable, TypeAlias
 
-class KafkaTopicLocator:
+data_search_fn: TypeAlias = Callable[[str], Awaitable[list[dict[str, str]]]]
+data_details_fn: TypeAlias = Callable[[str], Awaitable[dict[str, str]]]
+
+def locate_topic(
+    topic_name: str, search_data: data_search_fn, get_data_details: data_details_fn
+) -> dict[str, str | None]:
     """
-    A class to locate Kafka topics in the EPAM Data Catalog using MCP tools.
+    Locate the Kafka topic in the EPAM Data Catalog and retrieve its details.
+
+    Args:
+        topic_name: Name of the Kafka topic to locate.
+        search_data: Function to search the data catalog for potential matches.
+        get_data_details: Function to fetch detailed information of a specific entity.
+
+    Returns:
+        A dictionary with topic information, or a message indicating the topic was not found.
     """
 
-    def __init__(self, db_url: str, kafka_target_topic: str):
-        """
-        Initialize the locator with a database connection and target topic.
+    try:
+        results = await search_data(topic_name)
+    except Exception as err:
+        raise RuntimeError("Failed to search the data catalog") from err
 
-        Args:
-            db_url (str): The database URL for connection.
-            kafka_target_topic (str): The Kafka topic name to find.
-        """
-        self.db_url = db_url
-        self.kafka_target_topic = kafka_target_topic
+    for result in results:
+        if result.get("name") == topic_name:
+            entity_id = result.get("entity_id")
 
-    async def locate_topic(self) -> dict[str, str | int | None]:
-        """
-        Locate the Kafka topic in the EPAM Data Catalog.
+            if entity_id:
+                try:
+                    details = await get_data_details(entity_id)
+                    return {"status": "found", "details": details}
+                except Exception as err:
+                    raise RuntimeError("Failed to fetch entity details") from err
 
-        Returns:
-            dict[str, str | int | None]: Details of the located Kafka topic.
-        """
-        async with asyncpg.create_pool(self.db_url) as pool:
-            async with pool.acquire() as connection:
-                query_primary = "SELECT * FROM catalog WHERE topic_name = $1"
-                result_primary = await connection.fetchrow(query_primary, self.kafka_target_topic)
-                if result_primary:
-                    return dict(result_primary)
-                query_fallback = "SELECT * FROM catalog WHERE topic_name LIKE $1 LIMIT 1"
-                result_fallback = await connection.fetchrow(query_fallback, "%" + self.kafka_target_topic + "%")
-                if result_fallback:
-                    return dict(result_fallback)
-                return {"error": "Topic not found"}
+    return {"status": "not_found", "details": None}
 
-if __name__ == "__main__":
-    db_url = os.getenv("DATABASE_URL")
-    kafka_target_topic = os.getenv("KAFKA_TARGET_TOPIC")
-    if db_url and kafka_target_topic:
-        locator = KafkaTopicLocator(db_url, kafka_target_topic)
-        details = locator.locate_topic()
-        print("Located Kafka Topic details:", details)
-    else:
-        print("Environment variables not set correctly.")
+
+# Environment variables
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
+
+if KAFKA_TOPIC:
+    # Mock functions for implementation demonstration
+    async def mock_search_data(query: str) -> list[dict[str, str]]:
+        return [{"entity_id": "123", "name": "epm-skls-ai.courses-to-take"}]
+
+    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
+        return {"entity_id": entity_id, "name": "epm-skls-ai.courses-to-take", "info": "Example details"}
+
+    result = locate_topic(KAFKA_TOPIC, mock_search_data, mock_get_data_details)
+    print(result)
+else:
+    print("Environment variable KAFKA_TOPIC not set.")
