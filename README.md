@@ -380,19 +380,22 @@ If you have questions or suggestions, please create an Issue in the repository.
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
 
-## Missing Kafka Topic Entity Handling
+## 🔖 Data Catalog
 
-In scenarios where a specified Kafka topic entity cannot be found, it's important to take the following considerations:
+The integration of the Data Catalog provides visibility and management over various entities used in this project.
 
-- **Implications:**
-  - If the Kafka topic does not exist, any operations dependent on consuming or producing messages to that topic will fail.
-  - This could lead to data loss or system disruptions if not handled properly.
+### Legal Entities
 
-- **Potential Next Steps:**
-  - Verify the topic name for accuracy and alignment with the system configurations.
-  - Check the Kafka cluster's accessibility and permissions for the application.
-  - If the topic does not exist, you may consider creating the topic with appropriate configurations.
-  - Implement retries with exponential backoff in the application logic to handle transient network or cluster issues.
-  - Log the incident for further investigation and monitoring.
+- **Legal Entity** (Business Entity)
+  - Data Catalog Link: [Legal Entity Catalog](https://datacatalog.epam.com/data/data-details/255703/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
 
-By addressing these considerations proactively, the system's resilience and reliability can be ensured even in cases of missing Kafka topic entities.
+- **legalentity** (Data Entity)
+  - Data Catalog Link: [legalentity Catalog](https://datacatalog.epam.com/data/data-details/89573/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- **legal_entity** (Data Entity)
+  - Data Catalog Link: [legal_entity Catalog](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+For more information, visit the dedicated sections in the Data Catalog or contact the respective data stewards where applicable.
