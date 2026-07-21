@@ -11,13 +11,17 @@ class DataCatalogService:
 
     def search_data(self, query: str, filters: dict[str, str]) -> list[dict]:
         """Perform a search in the Data Catalog."""
-        # Mock detailed implementation
+        # Implement connection to MCP tool
+        # Simulating search results based on filters
+        if filters.get("kafka_topic") == self.kafka_topic:
+            return [{"id": "entity-123", "name": "sample-entity"}]
         return []
 
     def get_data_details(self, entity_id: str) -> dict:
         """Retrieve details of a given entity."""
-        # Mock detailed implementation
-        return {}
+        # Implement retrieval from MCP tool
+        # Simulating entity details response
+        return {"id": entity_id, "details": "Sample entity details"}
 
 def locate_entity(kafka_topic: str) -> dict:
     """Find the specific Kafka topic data entity in the Data Catalog."""
@@ -31,6 +35,8 @@ def locate_entity(kafka_topic: str) -> dict:
     return entity_details
 
 if __name__ == "__main__":
-    kafka_topic = os.getenv("DEFAULT_KAFKA_TOPIC", "default_topic")
+    kafka_topic = os.getenv("DEFAULT_KAFKA_TOPIC", "")
+    if not kafka_topic:
+        raise EnvironmentError("Environment variable DEFAULT_KAFKA_TOPIC not set.")
     result = locate_entity(kafka_topic)
     print(result)
