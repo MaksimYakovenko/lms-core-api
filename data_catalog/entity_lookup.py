@@ -1,40 +1,26 @@
 from __future__ import annotations
 
 import os
-from typing import Any
-from collections.abc import Callable
 
-# Placeholder imports for search_data and get_data_details that we will define
-import search_library
-import detail_library
+def search_data(filters: dict[str, str]) -> list[dict]:
+    """Mock function to search for data entities."""
+    return [{"id": "entity123", "name": "Test Entity"}] if filters else []
 
-async def perform_entity_lookup(topic_name: str) -> dict[str, Any]:
-    """
-    Perform a search and retrieve details for a given Kafka topic by Data Catalog interaction.
+def get_data_details(entity_id: str, sections: list[str]) -> dict:
+    """Mock function to return data entity details."""
+    return {"id": entity_id, "details": {section: "Details for " + section for section in sections}}
 
-    Args:
-        topic_name (str): The name of the Kafka topic to search for entity details.
+class DataCatalogLookup:
+    """Class to look up details for Kafka topics in the data catalog."""
 
-    Returns:
-        dict[str, Any]: The retrieved entity details.
-    """
-    try:
-        # Perform the search
-        filters = {"type": "Kafka_topic", "name": topic_name}
-        search_results = await search_library.search_data(filters)
+    def __init__(self, topic_name: str) -> None:
+        self.topic_name = topic_name
 
+    def fetch_entity_details(self) -> dict:
+        """Find and retrieve the details of the data entity for the given Kafka topic."""
+        filters = {"type": "kafka_topic", "name": self.topic_name}
+        search_results = search_data(filters)
         if not search_results:
-            raise ValueError(f"No entities found for topic {topic_name}.")
-
-        # Assume the first search result is the desired entity
+            raise ValueError("No entity found for the provided topic name.")
         entity_id = search_results[0]["id"]
-        details_sections = ["metadata", "schema"]
-
-        # Retrieve the entity details
-        details = await detail_library.get_data_details(entity_id, details_sections)
-
-        return details
-
-    except Exception as err:
-        # Handle errors that might occur
-        raise RuntimeError(f"Entity lookup failed: {err}") from err
+        return get_data_details(entity_id, ["schema", "metadata"])
