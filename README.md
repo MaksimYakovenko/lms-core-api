@@ -379,3 +379,25 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
+## 📑 Kafka Topics
+
+Included Kafka topics are detailed below:
+
+### Legal Entity (Business Entity)
+- **Topic Name**: Legal Entity
+- **Data Entity Name**: Legal Entity
+- **Catalog Link**: [View Catalog](https://datacatalog.epam.com/data/data-details/255703/summary?utm_source=onehub-assistant&utm_medium=widget)
+- **Data Steward**: Not specified
+
+### legalentity (Data Entity)
+- **Topic Name**: legalentity
+- **Data Entity Name**: legalentity
+- **Catalog Link**: [View Catalog](https://datacatalog.epam.com/data/data-details/89573/summary?utm_source=onehub-assistant&utm_medium=widget)
+- **Data Steward**: Not specified
+
+### legal_entity (Data Entity)
+- **Topic Name**: legal_entity
+- **Data Entity Name**: legal_entity
+- **Catalog Link**: [View Catalog](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)
+- **Data Steward**: Not specified
