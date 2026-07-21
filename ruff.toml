@@ -1,0 +1,31 @@
+line-length = 100
+target-version = "py312"
+
+[format]
+line-length = 100
+quote-style = "double"
+indent-style = "space"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "S",   # bandit (security)
+    "N",   # pep8-naming
+    "ANN", # flake8-annotations
+]
+ignore = [
+    "ANN401",  # Any is sometimes unavoidable; LLM is instructed to avoid it
+    "S101",    # use of assert (allowed in tests)
+]
+
+[lint.per-file-ignores]
+# Test files: annotation requirements and subprocess/exec bandit rules
+# are not appropriate for pytest test functions.
+"tests/**" = ["ANN", "S603", "S607", "S301", "S311"]
+"**/test_*.py" = ["ANN", "S603", "S607", "S301", "S311"]
