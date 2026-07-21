@@ -75,4 +75,3 @@ Detailed information about the system's relevant Kafka topics includes the follo
 - **Entity Name**: legal_entity
 - **Data Catalog**: [Link](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)
 - **Steward**: Not specified
-
