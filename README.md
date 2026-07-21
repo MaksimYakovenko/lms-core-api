@@ -304,6 +304,22 @@ The system supports the following roles:
 - **Teacher** - access to journal, lesson, grade, and subject management
 - **Student** - access to view information
 
+## Data Catalog
+
+The following Kafka topics are cataloged:
+
+- **Location Datahub Kafka**
+  - Data Catalog Link: [Link](https://datacatalog.epam.com/data/data-details/574882/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- **Office Datahub Kafka**
+  - Data Catalog Link: [Link](https://datacatalog.epam.com/data/data-details/578343/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- **Relevant_Proposal_to_Position_Kafka**
+  - Data Catalog Link: [Link](https://datacatalog.epam.com/data/data-details/622664/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
 ## 🧪 Testing
 
 Run tests:
@@ -379,3 +395,4 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
