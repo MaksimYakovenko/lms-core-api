@@ -1,35 +1,51 @@
-from __future__ import annotations
-
 import pytest
-import asyncio
 from unittest.mock import AsyncMock, patch
-from src.data_catalog.entity_search import query_kafka_topic
+from src.data_catalog.entity_search import DataCatalog, query_kafka_topic, build_query
 
 @pytest.mark.asyncio
-async def test_query_kafka_topic() -> None:
-    topic_name = "test-topic"
-    expected_result = {"name": "test entity", "type": "test-type", "project": "test-project"}
-    # Patch DataCatalog
-    with patch("src.data_catalog.entity_search.DataCatalog") as MockCatalog:
-        mock_catalog = MockCatalog.return_value
-        mock_catalog.search_data = AsyncMock(return_value=[expected_result])
+async def test_query_kafka_topic_returns_result():
+    mock_pool = AsyncMock()
+    mock_connection = AsyncMock()
+    mock_pool.acquire.return_value.__aenter__.return_value = mock_connection
 
-        result = await query_kafka_topic(topic_name)
-        assert result == expected_result
+    mock_connection.fetch.return_value = [{'topic_name': 'test_topic'}]
 
-        mock_catalog.search_data.assert_called_once_with(
-            "SELECT * FROM public.entities WHERE topic_name=$1 LIMIT 1;", (topic_name,)
-        )
+    with patch('src.data_catalog.entity_search.create_pool', return_value=mock_pool):
+        result = await query_kafka_topic('test_topic')
 
-    empty_topic_name = "non-existent-topic"
-    expected_empty_result = None
-    with patch("src.data_catalog.entity_search.DataCatalog") as MockCatalog:
-        mock_catalog = MockCatalog.return_value
-        mock_catalog.search_data = AsyncMock(return_value=[])
+    assert result == {'topic_name': 'test_topic'}
 
-        result = await query_kafka_topic(empty_topic_name)
-        assert result == expected_empty_result
+@pytest.mark.asyncio
+async def test_query_kafka_topic_no_topic():
+    with pytest.raises(ValueError, match="Topic name cannot be empty."):
+        await query_kafka_topic('')
 
-        mock_catalog.search_data.assert_called_once_with(
-            "SELECT * FROM public.entities WHERE topic_name=$1 LIMIT 1;", (empty_topic_name,)
-        )
+@pytest.mark.asyncio
+async def test_query_kafka_topic_no_results():
+    mock_pool = AsyncMock()
+    mock_connection = AsyncMock()
+    mock_pool.acquire.return_value.__aenter__.return_value = mock_connection
+
+    mock_connection.fetch.return_value = []
+
+    with patch('src.data_catalog.entity_search.create_pool', return_value=mock_pool):
+        result = await query_kafka_topic('nonexistent_topic')
+
+    assert result is None
+
+@pytest.mark.asyncio
+async def test_datacatalog_initialization():
+    mock_pool = AsyncMock()
+    with patch('src.data_catalog.entity_search.create_pool', return_value=mock_pool):
+        catalog = DataCatalog('mock_db_url')
+        await catalog.initialize()
+    mock_pool.assert_called_once_with(dsn='mock_db_url')
+
+@pytest.mark.asyncio
+async def test_datacatalog_closed():
+    mock_pool = AsyncMock()
+    with patch('src.data_catalog.entity_search.create_pool', return_value=mock_pool):
+        catalog = DataCatalog('mock_db_url')
+        await catalog.initialize()
+        await catalog.close()
+    mock_pool.close.assert_called_once()

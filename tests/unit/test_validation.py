@@ -1,27 +1,28 @@
-from __future__ import annotations
-
-import asyncio
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, patch
+from asyncpg.pool import Pool
 from src.data_catalog.validation import DataValidatorMCP
 
 @pytest.mark.asyncio
-async def test_validate_exclusive_use_of_mcp() -> None:
-    """
-    Test that the validate_exclusive_use_of_mcp method works correctly.
-    """
-
-    mock_pool = MagicMock()
+async def test_validate_exclusive_use_of_mcp():
+    # Test the main validation function
+    mock_pool = AsyncMock(spec=Pool)
     mock_connection = AsyncMock()
-    mock_connection.fetchval = AsyncMock(return_value=True)
-    mock_pool.acquire = AsyncMock(return_value=mock_connection)
+    mock_pool.acquire.return_value.__aenter__.return_value = mock_connection
+    mock_connection.fetchval.return_value = True
 
-    validator = DataValidatorMCP(db_url="mock://db")
-    validator._pool = mock_pool
+    db_url = "postgres://user:password@localhost:5432/database"
 
-    result = await validator.validate_exclusive_use_of_mcp()
+    with patch('asyncpg.create_pool', return_value=mock_pool):
+        validator = DataValidatorMCP(db_url)
+        await validator.setup()
 
-    assert result is True
-    mock_connection.fetchval.assert_called_once_with(
-        "SELECT EXCLUSIVE_USE_OF_MCP FROM SYSTEM_VALIDATION WHERE SYSTEM_ID = 1"
-    )
+        result = await validator.validate_exclusive_use_of_mcp()
+
+        assert result is True
+        
+        await validator.teardown()
+
+        mock_connection.fetchval.assert_called_once_with(
+            "SELECT EXCLUSIVE_USE_OF_MCP FROM SYSTEM_VALIDATION WHERE SYSTEM_ID = 1"
+        )
