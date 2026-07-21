@@ -1,50 +1,66 @@
 from __future__ import annotations
 
 import os
-import asyncio
 from collections.abc import Callable
-from typing import Any
 
-# Define the main lookup function
-def perform_mcp_entity_lookup(topic: str) -> dict[str, Any]:
-    """Perform an MCP entity lookup for a specified Kafka topic."""
+class DataCatalogLookup:
+    """Class to perform lookup and retrieval of Data Catalog entity details."""
 
-    # Validate topic
-    if not topic.strip():
-        raise ValueError("Topic name must not be empty.")
+    def __init__(self, kafka_topic: str) -> None:
+        """Initialize the lookup instance.
 
-    # Simulate search and retrieval (replace with actual implementation if available)
-    def search_data(filter: dict[str, str]) -> list[dict[str, Any]]:
-        """Mock implementation of search functionality."""
-        return [{"entity_id": "mock_entity_id"}]
+        Args:
+            kafka_topic: The Kafka topic name for entity lookup.
+        """
+        self.kafka_topic = kafka_topic
 
-    def get_data_details(entity_id: str, sections: list[str]) -> dict[str, str]:
-        """Mock implementation of details retrieval."""
-        return {"schema": "mock_schema_definition"}
+    def search_data(self, filters: dict[str, str]) -> list[dict]:
+        """Search for entities using specified filters.
 
-    # Perform search query
-    filter_condition = {"topic_name": topic}
-    search_results = search_data(filter_condition)
+        Args:
+            filters: A dictionary of filters for searching.
+        
+        Returns:
+            A list of dictionaries representing search results.
+        """
+        # Example implementation query
+        return []
 
-    if not search_results:
-        raise LookupError(f"No data found for topic: {topic}")
+    def get_data_details(self, entity_id: str, sections: list[str]) -> dict:
+        """Retrieve the details of a specific entity ID including specified sections.
 
-    # Extract entity ID
-    entity_id = search_results[0]["entity_id"]
+        Args:
+            entity_id: The ID of the entity to retrieve.
+            sections: The sections to include in the details.
+        
+        Returns:
+            A dictionary with entity details.
+        """
+        # Example implementation retrieval
+        return {}
 
-    # Retrieve details
-    sections = ["schema"]
-    details = get_data_details(entity_id, sections)
+    def perform_mcp_entity_lookup(self, filters: dict[str, str], sections: list[str]) -> dict:
+        """Perform lookup for the specified Kafka topic and retrieve entity details.
 
-    return details
+        Args:
+            filters: Filters to apply in the search.
+            sections: Sections to retrieve in the details.
 
-if __name__ == "__main__":
-    # Example Kafka topic
-    kafka_topic = os.getenv("KAFKA_TOPIC_NAME", "default-topic")
-    
-    # Perform lookup
-    try:
-        result = perform_mcp_entity_lookup(kafka_topic)
-        print(f"Lookup result: {result}")
-    except Exception as ex:
-        print(f"Error occurred during lookup: {ex}")
+        Returns:
+            The details of the entity.
+        """
+        search_results = self.search_data(filters)
+        if not search_results:
+            raise ValueError("No entities found matching the filters")
+        entity_id = search_results[0]['id']  # Assuming 'id' is the key
+        return self.get_data_details(entity_id, sections)
+
+# Instantiate with topic
+kafka_topic = os.getenv("KAFKA_TOPIC", "default-topic")
+data_catalog_lookup = DataCatalogLookup(kafka_topic)
+
+# Example usage
+filters = {"key": "value"}
+sections = ["section1", "section2"]
+details = data_catalog_lookup.perform_mcp_entity_lookup(filters, sections)
+print(details)
