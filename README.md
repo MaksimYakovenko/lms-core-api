@@ -379,3 +379,5 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
+```
