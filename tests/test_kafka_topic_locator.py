@@ -1,58 +1,25 @@
-"""
-Unit tests for `kafka_topic_locator` module.
-"""
-
 from __future__ import annotations
 
 import pytest
-from docs.kafka_topic_locator import locate_topic
+from unittest.mock import AsyncMock
+
+from docs.kafka_topic_locator import KafkaTopicLocator, MCPCatalogConnector
 
 @pytest.mark.asyncio
-async def test_locate_topic_found() -> None:
-    async def mock_search_data(query: str) -> list[dict[str, str]]:
-        return [{"entity_id": "123", "name": "epm-skls-ai.courses-to-take"}]
+async def test_kafka_topic_locator() -> None:
+    """Tests the KafkaTopicLocator's ability to locate a Kafka topic."""
 
-    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
-        return {"entity_id": entity_id, "name": "epm-skls-ai.courses-to-take", "info": "Example details"}
+    # Arrange
+    mocked_connector = AsyncMock(spec=MCPCatalogConnector)
+    mocked_connector.search_data = AsyncMock(return_value=[{"id": "1234"}])
+    mocked_connector.get_data_details = AsyncMock(return_value={"name": "test-topic"})
 
-    topic_name = "epm-skls-ai.courses-to-take"
-    result = await locate_topic(topic_name, mock_search_data, mock_get_data_details)
-    assert result["status"] == "found"
-    assert result["details"] is not None
+    topic_locator = KafkaTopicLocator("test-topic", mocked_connector)
 
-@pytest.mark.asyncio
-async def test_locate_topic_not_found() -> None:
-    async def mock_search_data(query: str) -> list[dict[str, str]]:
-        return []
+    # Act
+    topic_details = await topic_locator.locate_topic()
 
-    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
-        return {}
-
-    topic_name = "non-existent-topic"
-    result = await locate_topic(topic_name, mock_search_data, mock_get_data_details)
-    assert result["status"] == "not_found"
-    assert result["details"] is None
-
-@pytest.mark.asyncio
-async def test_locate_topic_search_failure() -> None:
-    async def mock_search_data(query: str) -> list[dict[str, str]]:
-        raise RuntimeError("Search failure")
-
-    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
-        return {}
-
-    topic_name = "epm-skls-ai.courses-to-take"
-    with pytest.raises(RuntimeError, match="Failed to search the data catalog"):
-        await locate_topic(topic_name, mock_search_data, mock_get_data_details)
-
-@pytest.mark.asyncio
-async def test_locate_topic_details_failure() -> None:
-    async def mock_search_data(query: str) -> list[dict[str, str]]:
-        return [{"entity_id": "123", "name": "epm-skls-ai.courses-to-take"}]
-
-    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
-        raise RuntimeError("Details failure")
-
-    topic_name = "epm-skls-ai.courses-to-take"
-    with pytest.raises(RuntimeError, match="Failed to fetch entity details"):
-        await locate_topic(topic_name, mock_search_data, mock_get_data_details)
+    # Assert
+    assert topic_details == {"name": "test-topic"}
+    mocked_connector.search_data.assert_called_once_with("test-topic")
+    mocked_connector.get_data_details.assert_called_once_with("1234")

@@ -1,61 +1,45 @@
-"""
-Module `kafka_topic_locator` provides functionality to locate Kafka topics in the EPAM Data Catalog.
-"""
-
 from __future__ import annotations
 
 import os
-from typing import Awaitable, Callable, TypeAlias
+from typing import Any
+from collections.abc import Coroutine
 
-data_search_fn: TypeAlias = Callable[[str], Awaitable[list[dict[str, str]]]]
-data_details_fn: TypeAlias = Callable[[str], Awaitable[dict[str, str]]]
+class MCPCatalogConnector:
+    """Simulates the connector to interact with the MCP tools API."""
 
-def locate_topic(
-    topic_name: str, search_data: data_search_fn, get_data_details: data_details_fn
-) -> dict[str, str | None]:
-    """
-    Locate the Kafka topic in the EPAM Data Catalog and retrieve its details.
+    async def search_data(self, query: str) -> Any:
+        # Simulates a method to search data entries using a query string.
+        pass
 
-    Args:
-        topic_name: Name of the Kafka topic to locate.
-        search_data: Function to search the data catalog for potential matches.
-        get_data_details: Function to fetch detailed information of a specific entity.
+    async def get_data_details(self, entry_id: str) -> Any:
+        # Simulates a method to fetch detailed information about an entry by ID.
+        pass
 
-    Returns:
-        A dictionary with topic information, or a message indicating the topic was not found.
-    """
+class KafkaTopicLocator:
+    """Provides functionality to locate and fetch information about a Kafka topic."""
 
-    try:
-        results = await search_data(topic_name)
-    except Exception as err:
-        raise RuntimeError("Failed to search the data catalog") from err
+    def __init__(self, topic_name: str, connector: MCPCatalogConnector) -> None:
+        """
+        Initializes the KafkaTopicLocator instance.
 
-    for result in results:
-        if result.get("name") == topic_name:
-            entity_id = result.get("entity_id")
+        :param topic_name: The Kafka topic name to locate.
+        :param connector: The connector to the MCP tools API.
+        """
+        self.topic_name = topic_name
+        self.connector = connector
 
-            if entity_id:
-                try:
-                    details = await get_data_details(entity_id)
-                    return {"status": "found", "details": details}
-                except Exception as err:
-                    raise RuntimeError("Failed to fetch entity details") from err
+    async def locate_topic(self) -> dict[str, Any]:
+        """
+        Locates the Kafka topic using the MCP tools API.
 
-    return {"status": "not_found", "details": None}
+        :return: Details of the located Kafka topic.
+        """
+        # Search for the topic by name
+        search_results = await self.connector.search_data(self.topic_name)
+        if not search_results:
+            raise ValueError(f"Topic {self.topic_name} not found.")
 
+        # Fetch detailed data for the first search result
+        topic_details = await self.connector.get_data_details(search_results[0]['id'])
 
-# Environment variables
-KAFKA_TOPIC = os.getenv("KAFKA_TOPIC")
-
-if KAFKA_TOPIC:
-    # Mock functions for implementation demonstration
-    async def mock_search_data(query: str) -> list[dict[str, str]]:
-        return [{"entity_id": "123", "name": "epm-skls-ai.courses-to-take"}]
-
-    async def mock_get_data_details(entity_id: str) -> dict[str, str]:
-        return {"entity_id": entity_id, "name": "epm-skls-ai.courses-to-take", "info": "Example details"}
-
-    result = locate_topic(KAFKA_TOPIC, mock_search_data, mock_get_data_details)
-    print(result)
-else:
-    print("Environment variable KAFKA_TOPIC not set.")
+        return topic_details
