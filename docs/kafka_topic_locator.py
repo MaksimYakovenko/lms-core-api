@@ -1,46 +1,50 @@
 from __future__ import annotations
 
 import os
-import asyncio
-from mcp_tools import search_data, get_data_details
+from collections.abc import Callable
+import asyncpg
 
 class KafkaTopicLocator:
     """
-    A utility class to locate and retrieve information about Kafka topics using MCP Tools.
+    A class to locate Kafka topics in the EPAM Data Catalog using MCP tools.
     """
 
-    def __init__(self) -> None:
-        self.target_topic = os.getenv("KAFKA_TARGET_TOPIC", "epm-skls-ai.courses-to-take")
-
-    async def locate_and_retrieve_topic_info(self) -> dict[str, str]:
+    def __init__(self, db_url: str, kafka_target_topic: str):
         """
-        Locate the Kafka topic using MCP tools and retrieve its relevant information.
+        Initialize the locator with a database connection and target topic.
+
+        Args:
+            db_url (str): The database URL for connection.
+            kafka_target_topic (str): The Kafka topic name to find.
+        """
+        self.db_url = db_url
+        self.kafka_target_topic = kafka_target_topic
+
+    async def locate_topic(self) -> dict[str, str | int | None]:
+        """
+        Locate the Kafka topic in the EPAM Data Catalog.
 
         Returns:
-            A dictionary with details of the located topic.
-
-        Raises:
-            ValueError: If no matching topics are found.
+            dict[str, str | int | None]: Details of the located Kafka topic.
         """
-        search_results = await search_data(self.target_topic)
-
-        if not search_results:
-            raise ValueError(f"Topic '{self.target_topic}' not found using MCP search.")
-
-        for result in search_results:
-            if result.get("name") == self.target_topic:
-                return await get_data_details(result.get("id"))
-
-        raise ValueError(f"Matching topic details for '{self.target_topic}' could not be determined.")
+        async with asyncpg.create_pool(self.db_url) as pool:
+            async with pool.acquire() as connection:
+                query_primary = "SELECT * FROM catalog WHERE topic_name = $1"
+                result_primary = await connection.fetchrow(query_primary, self.kafka_target_topic)
+                if result_primary:
+                    return dict(result_primary)
+                query_fallback = "SELECT * FROM catalog WHERE topic_name LIKE $1 LIMIT 1"
+                result_fallback = await connection.fetchrow(query_fallback, "%" + self.kafka_target_topic + "%")
+                if result_fallback:
+                    return dict(result_fallback)
+                return {"error": "Topic not found"}
 
 if __name__ == "__main__":
-    async def main() -> None:
-        locator = KafkaTopicLocator()
-        try:
-            topic_info = await locator.locate_and_retrieve_topic_info()
-            print("Retrieved topic information:")
-            print(topic_info)
-        except ValueError as e:
-            print(f"Error: {e}")
-
-    asyncio.run(main())
+    db_url = os.getenv("DATABASE_URL")
+    kafka_target_topic = os.getenv("KAFKA_TARGET_TOPIC")
+    if db_url and kafka_target_topic:
+        locator = KafkaTopicLocator(db_url, kafka_target_topic)
+        details = locator.locate_topic()
+        print("Located Kafka Topic details:", details)
+    else:
+        print("Environment variables not set correctly.")

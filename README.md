@@ -180,27 +180,6 @@ API will be available at: `http://localhost:8000`
 
 API Documentation (Swagger): `http://localhost:8000/docs`
 
-### Running with Docker
-
-1. Build the Docker image:
-```bash
-docker build -t lms-core-api .
-```
-
-2. Run the container:
-```bash
-docker run -d \
-  -p 8000:8000 \
-  -e DB_HOST=your_db_host \
-  -e DB_PORT=5432 \
-  -e DB_NAME=lms_db \
-  -e DB_USER=postgres \
-  -e DB_PASSWORD=your_password \
-  -e SECRET_KEY=your_secret_key \
-  --name lms-api \
-  lms-core-api
-```
-
 ## 📚 Kafka Topic Details
 
 Below is the documentation for the relevant Kafka topic entity information:
@@ -213,3 +192,4 @@ Below is the documentation for the relevant Kafka topic entity information:
 
 - **Relevant Proposal to Position Kafka**
   - Data Catalog Link: [Relevant Proposal to Position Kafka Entity](https://datacatalog.epam.com/data/data-details/622664/summary?utm_source=onehub-assistant&utm_medium=widget)
+
