@@ -1,44 +1,28 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any
 
-class MCP:
-    """
-    Mock MCP tool class to simulate 'search_data' and 'get_data_details'.
-    These represent the exclusive tools allowed for data retrieval.
-    """
+def search_data(query: str) -> list[dict[str, str]]:
+    """Search for data matching a query. Returns a list of data identifiers."""
+    # Example logic of retrieving data identifiers based on query.
+    return [{'id': '123'}, {'id': '456'}]
 
-    def search_data(self, query: str) -> list[dict[str, Any]]:
-        """Simulates the 'search_data' functionality of MCP."""
-        # Implementation here
+def get_data_details(identifier: str) -> dict[str, str]:
+    """Retrieve details of data given its identifier."""
+    # Example logic of retrieving data details.
+    return {'id': identifier, 'detail': 'details about the data'}
+
+def execute_retrieval(query: str) -> list[dict[str, str]]:
+    """Retrieve and detail data by employing `search_data` and `get_data_details` functions."""
+    results = search_data(query)
+    detailed_results = [get_data_details(item['id']) for item in results]
+    return detailed_results
+
+class MCPDataRetriever:
+    """Class utilizing exclusive MCP functions to retrieve and describe data."""
+    def __init__(self) -> None:
         pass
 
-    def get_data_details(self, identifier: str) -> dict[str, Any]:
-        """Simulates the 'get_data_details' functionality of MCP."""
-        # Implementation here
-        pass
-
-class DataRetrievalVerifier:
-    """Class to validate MCP data retrieval usage."""
-
-    def __init__(self, mcp: MCP) -> None:
-        """
-        Initialize the verifier with an MCP instance.
-        
-        :param mcp: The MCP tool instance.
-        """
-        self.mcp = mcp
-
-    def retrieve_data(self, query: str) -> list[dict[str, Any]] | None:
-        """
-        Retrieves data using only allowed MCP functions.
-        
-        :param query: The search query to execute.
-        :return: The search results or None if an error occurred.
-        """
-        try:
-            results = self.mcp.search_data(query)
-            return [self.mcp.get_data_details(result['id']) for result in results]
-        except Exception as err:
-            raise RuntimeError("Data retrieval failed.") from err
+    def retrieve_with_mcp(self, query: str) -> list[dict[str, str]]:
+        """Perform data retrieval using only MCP functions."""
+        return execute_retrieval(query)
