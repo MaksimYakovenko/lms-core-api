@@ -5,11 +5,14 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: auto_ria
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d auto_ria"]
       interval: 5s
       timeout: 5s
       retries: 10
+      start_period: 10s
 
   api:
     build: .
@@ -20,3 +23,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+volumes:
+  pgdata:

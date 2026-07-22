@@ -1,3 +1,5 @@
+import asyncio
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -18,11 +20,34 @@ from routers.classrooms import router as classrooms_router
 from routers.health import router as health_router
 from db.database import engine, Base
 
+logger = logging.getLogger("uvicorn.error")
+
+DB_CONNECT_RETRIES = 10
+DB_CONNECT_DELAY_SECONDS = 2
+
+
+async def wait_for_db():
+    last_exc = None
+    for attempt in range(1, DB_CONNECT_RETRIES + 1):
+        try:
+            async with engine.begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+            logger.info(f"Database connection established on attempt {attempt}")
+            return
+        except (ConnectionRefusedError, OSError) as exc:
+            last_exc = exc
+            logger.warning(
+                f"DB connection attempt {attempt}/{DB_CONNECT_RETRIES} failed: {exc}. "
+                f"Retrying in {DB_CONNECT_DELAY_SECONDS}s..."
+            )
+            await asyncio.sleep(DB_CONNECT_DELAY_SECONDS)
+    logger.error("Could not connect to database after all retries")
+    raise last_exc
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    await wait_for_db()
     yield
     await engine.dispose()
 
