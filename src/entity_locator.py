@@ -11,36 +11,40 @@ class EntityLocator:
     def __init__(self, kafka_topic: str) -> None:
         self.kafka_topic = kafka_topic
 
-    async def locate_entity(self) -> dict[str, object]:
+    async def locate_entity(self) -> dict[str, object] | None:
         """Locate the Kafka topic entity and retrieve its details."""
         database_url = os.getenv("DATABASE_URL")
         if not database_url:
             raise ValueError("DATABASE_URL environment variable is not set.")
         
-        details: dict[str, object] = {}
         async with asyncpg.create_pool(database_url) as pool:
             async with pool.acquire() as connection:
+                query = """
+                SELECT attributes, governance_information, links
+                FROM kafka_topics
+                WHERE topic_name = $1;
+                """
                 try:
-                    query = """
-                    SELECT attributes, governance_information, links
-                    FROM kafka_topics
-                    WHERE topic_name = $1;
-                    """
                     result = await connection.fetchrow(query, self.kafka_topic)
                     if result:
-                        details = {
+                        return {
                             "attributes": result["attributes"],
                             "governance_information": result["governance_information"],
                             "links": result["links"],
                         }
                     else:
-                        raise ValueError("Topic not found.")
+                        return None
                 except asyncpg.PostgresError as err:
                     raise RuntimeError("Database query failed.") from err
-        return details
 
 if __name__ == "__main__":
     topic_name = os.getenv("KAFKA_TOPIC", "default-topic")
     locator = EntityLocator(topic_name)
-    result = asyncio.run(locator.locate_entity())
-    print(result)
+    try:
+        result = asyncio.run(locator.locate_entity())
+        if result is None:
+            print("Topic not found.")
+        else:
+            print(result)
+    except Exception as e:
+        print(f"Error: {e}")
