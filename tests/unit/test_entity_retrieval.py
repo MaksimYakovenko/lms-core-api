@@ -3,18 +3,42 @@ from __future__ import annotations
 import os
 import pytest
 from unittest.mock import AsyncMock, patch
-from src.entity_retrieval import get_entity
+from src.data_catalog.entity_retrieval import fetch_data_entity
 
 @pytest.mark.asyncio
-@patch('src.entity_retrieval.retrieve_entity_data', new_callable=AsyncMock)
-async def test_get_entity(mock_retrieve_entity_data: AsyncMock) -> None:
+@patch("src.data_catalog.entity_retrieval.httpx.AsyncClient", autospec=True)
+async def test_fetch_data_entity(mock_client: AsyncMock) -> None:
     """
-    Test function get_entity to ensure MCP API compliance and data consistency.
+    Test function fetch_data_entity to ensure MCP API compliance and data consistency.
     """
-    mock_retrieve_entity_data.return_value = {"id": 42, "name": "Entity42"}
+    mock_response = AsyncMock()
+    mock_response.json.return_value = {
+        "basic": {
+            "name": "Test Entity",
+            "id": 42
+        },
+        "governance": {
+            "compliance_status": "compliant"
+        },
+        "links": {
+            "homepage": "http://example.com"
+        }
+    }
+    mock_response.raise_for_status.return_value = None
+    mock_client.return_value.__aenter__.return_value.get.return_value = mock_response
 
-    with patch('src.entity_retrieval.POOL'):
-        result = await get_entity(42)
-        assert result == {"id": 42, "name": "Entity42"}
+    with patch("os.getenv", return_value="http://mockapi.example.com"):
+        result = await fetch_data_entity("epm-skls-ai.courses-to-take")
 
-        mock_retrieve_entity_data.assert_awaited_once_with(42)
+    assert result == {
+        "basic": {
+            "name": "Test Entity",
+            "id": 42
+        },
+        "governance": {
+            "compliance_status": "compliant"
+        },
+        "links": {
+            "homepage": "http://example.com"
+        }
+    }

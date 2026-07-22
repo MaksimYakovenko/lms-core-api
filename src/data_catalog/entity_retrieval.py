@@ -22,6 +22,6 @@ async def fetch_data_entity(topic: str) -> dict[str, object]:
                 "governance": data.get("governance"),
                 "links": data.get("links"),
             }
-    except httpx.RequestError as err:
+    except (httpx.RequestError, httpx.HTTPStatusError) as err:
         logger.error("Request to Data Catalog MCP API failed.", exc_info=True)
-        raise RuntimeError("Failed to retrieve data entity") from err
+        raise RuntimeError(f"Failed to retrieve data entity: {err}") from err
