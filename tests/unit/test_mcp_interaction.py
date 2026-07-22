@@ -1,35 +1,34 @@
-from __future__ import annotations
-
-import os
 import pytest
-from aiohttp import web
 import aiohttp
-
+from unittest.mock import AsyncMock, patch, MagicMock
 from src.data_catalog.mcp_interaction import MCPInteraction
 
-@pytest.fixture
-async def mock_server(aiohttp_server):
-    def search_handler(request):
-        return web.json_response({"results": [{"id": "12345"}]})
+@pytest.mark.asyncio
+async def test_search_data_valid_filters():
+    # Test that MCPInteraction.search_data works correctly with valid inputs
+    filters = {"type": "Example", "name": "test"}
+    expected_result = {"results": [{"id": "1234", "type": "Example"}]}
+    async_mock_session = AsyncMock()
+    async_mock_session.__aenter__.return_value.post.return_value.json = AsyncMock(return_value=expected_result)
 
-    def details_handler(request):
-        return web.json_response({"id": "12345", "name": "example-topic", "type": "KafkaTopic"})
+    with patch("aiohttp.ClientSession", return_value=async_mock_session):
+        
+        mcp_instance = MCPInteraction(base_url="http://mock-url.com")
+        result = await mcp_instance.search_data(filters=filters)
 
-    app = web.Application()
-    app.router.add_post("/search", search_handler)
-    app.router.add_get("/details/{entity_id}", details_handler)
-
-    return await aiohttp_server(app)
+        assert result == expected_result
 
 @pytest.mark.asyncio
-async def test_mcp_interaction(mock_server) -> None:
-    base_url = str(mock_server.make_url(""))
-    mcp_service = MCPInteraction(base_url=base_url)
+async def test_get_data_details_valid_id():
+    # Test that MCPInteraction.get_data_details works correctly for valid entity_id
+    entity_id = "1234"
+    expected_result = {"id": "1234", "type": "Example", "details": "Sample Data"}
+    async_mock_session = AsyncMock()
+    async_mock_session.__aenter__.return_value.get.return_value.json = AsyncMock(return_value=expected_result)
 
-    filters = {"type": "KafkaTopic", "name": "example-topic"}
-    search_results = await mcp_service.search_data(filters=filters)
-    assert len(search_results["results"]) > 0
+    with patch("aiohttp.ClientSession", return_value=async_mock_session):
+        
+        mcp_instance = MCPInteraction(base_url="http://mock-url.com")
+        result = await mcp_instance.get_data_details(entity_id=entity_id)
 
-    entity_id = search_results["results"][0]["id"]
-    entity_details = await mcp_service.get_data_details(entity_id=entity_id)
-    assert entity_details["id"] == entity_id
+        assert result == expected_result
