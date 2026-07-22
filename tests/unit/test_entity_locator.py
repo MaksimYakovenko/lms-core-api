@@ -6,7 +6,9 @@ from src.entity_locator import EntityLocator
 
 @pytest.mark.asyncio
 async def test_locate_entity_found() -> None:
-    """Unit test for the locate_entity method when the topic is found."""
+    """
+    Unit test for the locate_entity method when the topic is found.
+    """
     test_topic = "epm-skls-ai.courses-to-take"
     locator = EntityLocator(test_topic)
 
@@ -40,7 +42,9 @@ async def test_locate_entity_found() -> None:
 
 @pytest.mark.asyncio
 async def test_locate_entity_not_found() -> None:
-    """Unit test for the locate_entity method when the topic is not found."""
+    """
+    Unit test for the locate_entity method when the topic is not found.
+    """
     test_topic = "nonexistent-topic"
     locator = EntityLocator(test_topic)
 
