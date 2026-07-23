@@ -356,6 +356,22 @@ pip freeze > requirements.txt
 | REFRESH_TOKEN_EXPIRE_DAYS | Refresh token lifetime | 7 |
 | ALGORITHM | JWT encryption algorithm | HS256 |
 
+## 📄 Data Catalog Details
+
+### Topics
+
+- Location Datahub Kafka
+  - Data Catalog Link: [Location Datahub Kafka](https://datacatalog.epam.com/data/data-details/574882/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- Office Datahub Kafka
+  - Data Catalog Link: [Office Datahub Kafka](https://datacatalog.epam.com/data/data-details/578343/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- Relevant_Proposal_to_Position_Kafka
+  - Data Catalog Link: [Relevant_Proposal_to_Position_Kafka](https://datacatalog.epam.com/data/data-details/622664/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
 ## 🤝 Contributing
 
 1. Fork the repository
@@ -367,10 +383,6 @@ pip freeze > requirements.txt
 ## 📄 License
 
 This project is distributed under the MIT License.
-
-## 📧 Contact
-
-If you have questions or suggestions, please create an Issue in the repository.
 
 ---
 
