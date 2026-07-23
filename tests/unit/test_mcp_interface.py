@@ -1,42 +1,65 @@
-from __future__ import annotations
-
-from unittest.mock import AsyncMock, patch
 import pytest
-
-from service.mcp_interface import McpService
+from unittest.mock import AsyncMock, patch, MagicMock
+from src.service.mcp_interface import McpService
 
 @pytest.mark.asyncio
-async def test_search_data():
-    """Test searching data in the MCP system."""
-    with patch("service.mcp_interface.McpService.db_pool") as mock_pool:
-        mock_conn = AsyncMock()
-        mock_pool.acquire.return_value.__aenter__.return_value = mock_conn
-        mock_conn.fetch.return_value = [
-            {"data_key": "data_value"}
-        ]
-        
-        service = McpService(kafka_topic="mock-topic", db_url="mock-db-url")
-        
-        service.db_pool = mock_pool
-        
-        result = await service.search_data(identifier="test_identifier")
-        assert result == [{"data_key": "data_value"}]
+async def test_search_data_entity_found():
+    # Test the McpService's search_data method when an entity is found in the database
+    mcp_service = McpService(kafka_topic="test-topic", db_url="postgresql://localhost/test_db")
+
+    # Mock the database pool and connection
+    mcp_service.db_pool = AsyncMock()
+    mock_connection = AsyncMock()
+    mcp_service.db_pool.acquire.return_value.__aenter__.return_value = mock_connection
+
+    # Mock the database fetch result
+    mock_fetch_result = [{"data": "{'field': 'value'}"}]
+    mock_connection.fetch.return_value = mock_fetch_result
+
+    # Call search_data and assert the return value
+    result = await mcp_service.search_data("identifier")
+    assert result == [{"data": "{'field': 'value'}"}]
+    mock_connection.fetch.assert_called_with(
+        """
+                SELECT data
+                FROM records
+                WHERE identifier = $1
+            """, "identifier"
+    )
+
+@pytest.mark.asyncio
+async def test_search_data_no_entity_found():
+    # Test the McpService's search_data method when no entity is found in the database
+    mcp_service = McpService(kafka_topic="test-topic", db_url="postgresql://localhost/test_db")
+
+    # Mock the database pool and connection
+    mcp_service.db_pool = AsyncMock()
+    mock_connection = AsyncMock()
+    mcp_service.db_pool.acquire.return_value.__aenter__.return_value = mock_connection
+
+    # Mock the database fetch result
+    mock_connection.fetch.return_value = []
+
+    # Call search_data and assert the return value
+    result = await mcp_service.search_data("identifier")
+    assert result == []
 
 @pytest.mark.asyncio
 async def test_process_topic_entities():
-    """Test processing entities from Kafka topic."""
-    with patch("service.mcp_interface.McpService.search_data") as mock_search:
-        mock_search.return_value = [{"data": "example_data"}]
-        
-        with patch("service.mcp_interface.McpService.subscribe_to_topic", return_value=(i for i in ["test1", "test2"])):
-            service = McpService(kafka_topic="mock-topic", db_url="mock-db-url")
-            await service.process_topic_entities()
-            mock_search.assert_called()
+    # Test the McpService's process_topic_entities method
 
-@pytest.fixture
-async def mcp_service():
-    """Fixture providing initialized instance of McpService."""
-    service = McpService(kafka_topic="test-topic", db_url="test-db-url")
-    await service.initialize()
-    yield service
-    await service.terminate()
+    mcp_service = McpService(kafka_topic="test-topic", db_url="postgresql://localhost/test_db")
+
+    # Mock methods
+    mcp_service.search_data = AsyncMock(return_value=[{"data": "{'field': 'value'}"}])
+
+    # Mock the Kafka consumer
+    mock_kafka_consumer = MagicMock()
+    mock_kafka_consumer.__iter__.return_value = [{"key": b"identifier"}]
+
+    with patch("src.service.mcp_interface.KafkaConsumer", return_value=mock_kafka_consumer):
+        # Call process_topic_entities
+        await mcp_service.process_topic_entities()
+
+        # Assert search_data was called
+        mcp_service.search_data.assert_called_with("identifier")
