@@ -16,37 +16,7 @@ Developers must ensure that no direct connections to databases or manual configu
 
 The following details pertain to the data catalog information related to our Kafka topics:
 
-```python
-import os
-import requests
-
-def fetch_catalog_info() -> dict[str, str]:
-    api_url = os.getenv("MCP_API_ENDPOINT")
-    topic = os.getenv("KAFKA_TOPIC")
-    if not api_url or not topic:
-        raise ValueError("Missing required environment configuration.")
-    response = requests.get(f"{api_url}/topics/{topic}")
-    response.raise_for_status()
-    data = response.json()
-    return {
-        "topic_name": data["topicName"],
-        "entity_name": data["entityName"],
-        "catalog_link": data["catalogLink"],
-        "steward_email": data["stewardEmail"]
-    }
-
-def generate_documentation(catalog_info: dict[str, str]) -> str:
-    documentation = (
-        "## Data Catalog\n"
-        "\n"
-        f"- **Topic Name**: {catalog_info['topic_name']}\n"
-        f"- **Entity Name**: {catalog_info['entity_name']}\n"
-        f"- **Catalog Link**: [View in Catalog]({catalog_info['catalog_link']})\n"
-        f"- **Steward Email**: {catalog_info['steward_email']}\n"
-    )
-    return documentation
-
-if __name__ == "__main__":
-    catalog_info = fetch_catalog_info()
-    print("Documentation Updated with: ")
-    print(generate_documentation(catalog_info))
+- **Topic Name**: example-topic
+- **Entity Name**: example-entity
+- **Catalog Link**: [View in Catalog](https://example.com/catalog)
+- **Steward Email**: steward@example.com
