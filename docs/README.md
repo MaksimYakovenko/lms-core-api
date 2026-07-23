@@ -13,3 +13,12 @@ To ensure that data is always accessed using specified MCP tools and avoid hardc
 Developers must ensure that no direct connections to databases or manual configuration adjustments are performed. Only use the MCP APIs to fetch, query, and manage data.
 
 To enforce this standard, validation mechanisms and reviews are in place during both the development and deployment stages.
+
+## Data Catalog
+
+The following details pertain to the data catalog information related to our Kafka topics:
+
+- **Topic Name**: `my.kafka.topic`
+- **Entity Name**: `ExampleEntity`
+- **Catalog Link**: [View in Catalog](https://catalog.example.com/entity/ExampleEntity)
+- **Steward Email**: `steward@example.com`

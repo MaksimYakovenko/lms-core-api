@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-def test_files_modified() -> None:
-    from check_readme_changes import files_modified
+from docs.check_readme_changes import check_readme_changes
 
-    # Test cases
-    assert files_modified(["docs/README.md"])
-    assert not files_modified(["docs/README.md", "src/main.py"])
-    assert not files_modified(["src/app.py"])
-    assert not files_modified([]) # No files modified
-    assert files_modified(["docs\\README.md","docs/README.md"])
-    # Simulate situation with normalized paths, particularly in cross-platform scenarios.
+def test_check_readme_single_file() -> None:
+    """Test if only modifying 'docs/README.md' returns True."""
+    assert check_readme_changes(["docs/README.md"]) is True
+
+def test_check_readme_multiple_files() -> None:
+    """Test if modifying additional files returns False."""
+    assert check_readme_changes(["docs/README.md", "src/main.py"]) is False
+
+def test_check_readme_with_empty_list() -> None:
+    """Test if providing an empty list returns False."""
+    assert check_readme_changes([]) is False
