@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import os
 from typing import Any, Dict
 
+from external.mcp_tools import search_data, get_data_details
 
 def search_kafka_topics(query: str) -> Dict[str, Any]:
     """
@@ -13,7 +15,15 @@ def search_kafka_topics(query: str) -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: Details of the matched Kafka topic, if found.
     """
-    matched_topic = None  # Simulating the search using MCP tools
-    topic_details = {}  # Simulating the details retrieval using `get_data_details`
-
+    
+    # Perform the search using `search_data`
+    search_filter = {"type": "kafka_topic"}  # Example filter to customize
+    search_results = search_data(query=query, search_filter=search_filter)
+    
+    if search_results:
+        matched_topic = search_results[0]  # Assume taking the first matching topic
+        topic_details = get_data_details(matched_topic)
+    else:
+        topic_details = {}
+    
     return topic_details
