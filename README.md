@@ -379,3 +379,23 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
+## 🔖 Data Catalog
+
+The integration of the Data Catalog provides visibility and management over various entities used in this project.
+
+### Legal Entities
+
+- **Legal Entity** (Business Entity)
+  - Data Catalog Link: [Legal Entity Catalog](https://datacatalog.epam.com/data/data-details/255703/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- **legalentity** (Data Entity)
+  - Data Catalog Link: [legalentity Catalog](https://datacatalog.epam.com/data/data-details/89573/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+- **legal_entity** (Data Entity)
+  - Data Catalog Link: [legal_entity Catalog](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)
+  - Data Steward: Not specified
+
+For more information, visit the dedicated sections in the Data Catalog or contact the respective data stewards where applicable.
