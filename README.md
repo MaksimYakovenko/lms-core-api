@@ -379,3 +379,18 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
+---
+
+## 🗂️ Data Catalog Reference
+
+### Entities
+
+#### Legal Entity
+- **Data Catalog Link:** [Legal Entity Data Catalog](https://datacatalog.epam.com/data/data-details/255703/summary?utm_source=onehub-assistant&utm_medium=widget)
+
+#### legalentity
+- **Data Catalog Link:** [legalentity Data Catalog](https://datacatalog.epam.com/data/data-details/89573/summary?utm_source=onehub-assistant&utm_medium=widget)
+
+#### legal_entity
+- **Data Catalog Link:** [legal_entity Data Catalog](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)
