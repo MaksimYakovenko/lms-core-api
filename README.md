@@ -374,8 +374,11 @@ If you have questions or suggestions, please create an Issue in the repository.
 
 ---
 
-**Version:** 2.0.0
+### Kafka Topics Documentation
 
-**FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
+| Topic Name | Description | Data Catalog Link |
+|------------|-------------|-------------------|
+| Location Datahub Kafka | Kafka topic for location data. | [Location Datahub Kafka Data Catalog](https://datacatalog.epam.com/data/data-details/574882/summary?utm_source=onehub-assistant&utm_medium=widget) |
+| Office Datahub Kafka | Kafka topic for office data. | [Office Datahub Kafka Data Catalog](https://datacatalog.epam.com/data/data-details/578343/summary?utm_source=onehub-assistant&utm_medium=widget) |
+| Relevant Proposal to Position Kafka | Kafka topic for proposals to position matching. | [Relevant Proposal to Position Kafka Data Catalog](https://datacatalog.epam.com/data/data-details/622664/summary?utm_source=onehub-assistant&utm_medium=widget) |
 
-**ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
