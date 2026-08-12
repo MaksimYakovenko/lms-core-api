@@ -123,6 +123,22 @@ lms-core-api/
     └── test_captcha_service.py
 ```
 
+## 📚 Kafka Topic Details
+
+The following Kafka topic configurations are utilized in the LMS Core API:
+
+### Kafka Topics
+
+- **Topic Name**: `legal_entity`
+
+#### Data Entity
+
+| Name         | Link                                                                                                                                             | Data Steward Email   |
+|--------------|--------------------------------------------------------------------------------------------------------------------------------------------------|----------------------|
+| LegalEntity  | [View Details](https://datacatalog.epam.com/data/data-details/255703/summary?utm_source=onehub-assistant&utm_medium=widget)                     | Not specified        |
+| legalentity  | [View Details](https://datacatalog.epam.com/data/data-details/89573/summary?utm_source=onehub-assistant&utm_medium=widget)                      | Not specified        |
+| legal_entity | [View Details](https://datacatalog.epam.com/data/data-details/129899/summary?utm_source=onehub-assistant&utm_medium=widget)                     | Not specified        |
+
 ## ⚙️ Installation and Setup
 
 ### Prerequisites
@@ -379,3 +395,5 @@ If you have questions or suggestions, please create an Issue in the repository.
 **FastAPI Documentation:** https://lms-core-api-production.up.railway.app/docs
 
 **ReDoc Documentation:** https://lms-core-api-production.up.railway.app/redoc
+
+```
