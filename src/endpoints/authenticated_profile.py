@@ -23,13 +23,15 @@ async def get_database_pool() -> asyncpg.pool.Pool:
         _pool = await asyncpg.create_pool(dsn=db_url)
     return _pool
 
+# Retrieve JWT_SECRET once from environment
+JWT_SECRET = os.getenv("JWT_SECRET")
+if not JWT_SECRET:
+    raise RuntimeError("JWT_SECRET environment variable not set")
+
 def decode_jwt_token(token: str) -> dict[str, str | int]:
     """Decode and validate a JWT token."""
-    secret = os.getenv("JWT_SECRET")
-    if not secret:
-        raise RuntimeError("JWT_SECRET environment variable not set")
     try:
-        return decode(token, key=secret, algorithms=["HS256"])
+        return decode(token, key=JWT_SECRET, algorithms=["HS256"])
     except DecodeError as err:
         raise HTTPException(status_code=401, detail="Invalid JWT token") from err
 
