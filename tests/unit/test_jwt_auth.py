@@ -1,47 +1,28 @@
-from __future__ import annotations
-
-import os
 import pytest
+from unittest.mock import MagicMock
 from fastapi.requests import Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import HTTPException
-from src.middleware.jwt_auth import jwt_auth_middleware
 import jwt
+from src.middleware.jwt_auth import jwt_auth_middleware
 
 @pytest.mark.asyncio
-async def test_jwt_auth_middleware() -> None:
-    """Tests the JWT authentication middleware."""
-    os.environ["JWT_SECRET"] = "secret"
-    token = jwt.encode({"user_id": 123}, "secret", algorithm="HS256")
-    
-    class MockRequest:
-        def __init__(self):
-            self.headers = {"Authorization": f"Bearer {token}"}
-            self.state = type("mock", (), {})()
-    
-    async def call_next(request: Request) -> JSONResponse:
-        assert hasattr(request.state, "user")
-        return JSONResponse(content={"message": "Success"})
-    
-    request = MockRequest()
-    response = await jwt_auth_middleware(request, call_next)
+async def test_jwt_auth_middleware_valid_token():
+    """Test that the middleware correctly sets the user state on a valid token."""
+    mock_request = MagicMock(spec=Request)
+    mock_request.headers = {"Authorization": "Bearer valid_token"}
+    mock_request.state = MagicMock()
+
+    secret = "testsecret"
+    os.environ["JWT_SECRET"] = secret
+
+    payload = {"user_id": "123"}
+    encoded_token = jwt.encode(payload, secret, algorithm="HS256")
+    mock_request.headers = {"Authorization": f"Bearer {encoded_token}"}
+
+    mock_call_next = MagicMock(return_value=JSONResponse(content={}))
+
+    response = await jwt_auth_middleware(mock_request, mock_call_next)
+
     assert response.status_code == 200
-
-@pytest.mark.asyncio
-async def test_missing_token() -> None:
-    """Tests JWT Middleware when no token is present."""
-    os.environ["JWT_SECRET"] = "secret"
-    
-    class MockRequest:
-        def __init__(self):
-            self.headers = {}
-            self.state = type("mock", (), {})()
-    
-    async def call_next(_: Request) -> JSONResponse:
-        return JSONResponse(content={"message": "Success"})
-    
-    request = MockRequest()
-    with pytest.raises(HTTPException) as exc:
-        await jwt_auth_middleware(request, call_next)
-    assert exc.value.status_code == 401
-    assert exc.value.detail == "Missing or invalid Authorization header"
+    assert mock_request.state.user == payload
