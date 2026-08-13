@@ -8,7 +8,6 @@ from db_service import get_student_profile
 # Define API Router for student profile endpoint
 router = APIRouter()
 
-# Implement Student Profile Retrieval Endpoint
 @router.get("/student/profile")
 async def student_profile(request: Request) -> JSONResponse:
     """
@@ -19,7 +18,6 @@ async def student_profile(request: Request) -> JSONResponse:
 
     Returns:
         JSONResponse: The JSON response with the student profile or error.
-
     """
     try:
         # Extract JWT from Authorization header
@@ -29,7 +27,10 @@ async def student_profile(request: Request) -> JSONResponse:
 
         jwt_token = auth_header.split(" ")[1]
         # Decode and validate JWT
-        user_info = decode_jwt(jwt_token)
+        try:
+            user_info = decode_jwt(jwt_token)
+        except Exception as err:
+            raise HTTPException(status_code=401, detail="Invalid JWT token.")
 
         if "student_id" not in user_info:
             raise HTTPException(status_code=403, detail="Invalid authentication token.")
@@ -37,9 +38,14 @@ async def student_profile(request: Request) -> JSONResponse:
         student_id = user_info["student_id"]
 
         # Retrieve profile from student profile service
-        profile = await get_student_profile(student_id)
+        try:
+            profile = await get_student_profile(student_id)
+        except Exception as err:
+            raise HTTPException(status_code=404, detail="Student profile not found.")
 
         return JSONResponse(content={"profile": profile})
 
+    except HTTPException as err:
+        raise err
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {error}")
+        raise HTTPException(status_code=500, detail="Unexpected server error.") from error

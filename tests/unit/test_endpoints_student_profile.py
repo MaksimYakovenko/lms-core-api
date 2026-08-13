@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 import pytest
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from some_jwt_library import encode_jwt
-from src.endpoints.student_profile import router
-
-# Mock database service for testing
 def mock_get_student_profile(student_id: str) -> dict:
-    return {"student_id": student_id, "name": "John Doe"}
-
-# Mock JWT
-valid_student_jwt = encode_jwt({"student_id": "12345"})
+    return {"student_id": student_id, "name": "Test Student"}
+from src.endpoints.student_profile import router
 
 @pytest.fixture
 def client() -> TestClient:
@@ -19,13 +15,13 @@ def client() -> TestClient:
     app.include_router(router)
     return TestClient(app)
 
-@pytest.mark.asyncio
-async def test_student_profile(client: TestClient) -> None:
-    """
-    Test the student profile retrieval endpoint.
-    """
-    response = client.get("/student/profile", headers={"Authorization": f"Bearer {valid_student_jwt}"})
+@patch("src.endpoints.student_profile.get_student_profile", side_effect=mock_get_student_profile)
+def test_student_profile(mocked_get_student_profile, client: TestClient) -> None:
+    token = encode_jwt({"student_id": "mock_student_id"})
+
+    response = client.get(
+        "/student/profile", headers={"Authorization": f"Bearer {token}"}
+    )
 
     assert response.status_code == 200
-    assert "profile" in response.json()
-    assert response.json()["profile"]["name"] == "John Doe"
+    assert response.json() == {"profile": {"student_id": "mock_student_id", "name": "Test Student"}}
