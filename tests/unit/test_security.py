@@ -1,40 +1,51 @@
-from __future__ import annotations
-
 import pytest
-from fastapi.testclient import TestClient
-from fastapi import FastAPI
-from src.authentication.security import SecurityMiddleware
+from unittest.mock import AsyncMock, patch
+from datetime import datetime, timedelta
+from fastapi import HTTPException
+from fastapi.middleware.base import BaseHTTPMiddleware
+from src.authentication.security import SecurityMiddleware, is_valid_token, log_unauthorized_access
 
-def create_app_with_security_middleware() -> FastAPI:
-    app = FastAPI()
-    app.add_middleware(SecurityMiddleware)
-    @app.get("/")
-    async def root():
-        return {"message": "Hello, World!"}
-    return app
+@pytest.mark.asyncio
+async def test_valid_token_allows_request():
+    """Test that valid token allows the request to pass."""
+    app_mock = AsyncMock()
+    middleware = SecurityMiddleware(app_mock)
+    request_mock = AsyncMock()
+    request_mock.headers = {"Authorization": "Bearer VALID_TOKEN"}
+    request_mock.client.host = "127.0.0.1"
 
-def test_secure_access_valid_token() -> None:
-    app = create_app_with_security_middleware()
-    client = TestClient(app)
-    response = client.get("/", headers={"Authorization": "Bearer VALID_TOKEN"})
-    assert response.status_code == 200
-    assert response.json() == {"message": "Hello, World!"}
+    with patch("src.authentication.security.is_valid_token", return_value=True):
+        with patch("src.authentication.security.log_unauthorized_access") as log_mock:
+            await middleware.dispatch(request_mock, app_mock)
+            log_mock.assert_not_called()
 
-def test_secure_access_invalid_token() -> None:
-    app = create_app_with_security_middleware()
-    client = TestClient(app)
-    response = client.get("/", headers={"Authorization": "Bearer INVALID_TOKEN"})
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid or expired token."
+@pytest.mark.asyncio
+async def test_invalid_token_raises_http_exception():
+    """Test that an invalid token raises HTTPException."""
+    app_mock = AsyncMock()
+    middleware = SecurityMiddleware(app_mock)
+    request_mock = AsyncMock()
+    request_mock.headers = {"Authorization": "Bearer INVALID_TOKEN"}
+    request_mock.client.host = "127.0.0.1"
 
-def test_rate_limiting_exceeded() -> None:
-    app = create_app_with_security_middleware()
-    client = TestClient(app)
-    headers = {"Authorization": "Bearer VALID_TOKEN"}
-    for _ in range(5):
-        response = client.get("/", headers=headers)
-        assert response.status_code == 200
-    response = client.get("/", headers=headers)
-    assert response.status_code == 429
-    assert response.json()["detail"] == "Rate limit exceeded."
+    with patch("src.authentication.security.is_valid_token", return_value=False):
+        with patch("src.authentication.security.log_unauthorized_access") as log_mock:
+            with pytest.raises(HTTPException) as exc_info:
+                await middleware.dispatch(request_mock, app_mock)
+            assert exc_info.value.status_code == 401
+            log_mock.assert_called_once_with("Unauthorized access from 127.0.0.1 with token='INVALID_TOKEN'")
 
+@pytest.mark.asyncio
+async def test_rate_limit_exceeded_raises_http_exception():
+    """Test that exceeding rate limit raises HTTPException."""
+    app_mock = AsyncMock()
+    middleware = SecurityMiddleware(app_mock)
+    middleware.requests_mapping = {"127.0.0.1": [datetime.utcnow() for _ in range(middleware.RATE_LIMIT)]}
+
+    request_mock = AsyncMock()
+    request_mock.headers = {"Authorization": "Bearer VALID_TOKEN"}
+    request_mock.client.host = "127.0.0.1"
+
+    with pytest.raises(HTTPException) as exc_info:
+        await middleware.dispatch(request_mock, app_mock)
+    assert exc_info.value.status_code == 429

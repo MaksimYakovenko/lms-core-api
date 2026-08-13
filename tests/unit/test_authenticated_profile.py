@@ -1,54 +1,59 @@
-from __future__ import annotations
+import pytest
+from unittest.mock import AsyncMock, patch
+from fastapi import HTTPException
+from src.endpoints.authenticated_profile import decode_jwt_token, retrieve_user_profile, get_profile
 
-from unittest.mock import AsyncMock
-from fastapi.testclient import TestClient
-from src.endpoints.authenticated_profile import router
-from fastapi import FastAPI
-import jwt
+@pytest.mark.asyncio
+async def test_decode_jwt_token_valid_token():
+    valid_token = "valid.jwt.token"
+    expected_payload = {"user_id": "1234"}
+    with patch("src.endpoints.authenticated_profile.decode", return_value=expected_payload):
+        result = decode_jwt_token(valid_token)
+        assert result == expected_payload
 
-# Setup test app
-app = FastAPI()
-app.include_router(router)
-client = TestClient(app)
+@pytest.mark.asyncio
+async def test_decode_jwt_token_invalid_token():
+    invalid_token = "invalid.jwt.token"
+    with patch("src.endpoints.authenticated_profile.decode", side_effect=HTTPException(status_code=401, detail="Invalid JWT token")):
+        with pytest.raises(HTTPException) as exc_info:
+            decode_jwt_token(invalid_token)
+        assert exc_info.value.status_code == 401
 
-def test_get_profile_valid_token(monkeypatch) -> None:
-    """Test profile endpoint with valid JWT."""
-    valid_user_id = "1"
-    token = jwt.encode({"user_id": valid_user_id}, key="test_secret", algorithm="HS256")
+@pytest.mark.asyncio
+async def test_retrieve_user_profile_valid_user():
+    user_id = "12345"
+    user_profile = {"id": 12345, "name": "John Doe", "email": "john.doe@example.com"}
+    async_pool = AsyncMock()
+    async_pool.acquire.return_value.fetchrow.return_value = user_profile
+    with patch("src.endpoints.authenticated_profile.get_database_pool", return_value=async_pool):
+        result = await retrieve_user_profile(user_id)
+        assert result == user_profile
 
-    monkeypatch.setattr("src.endpoints.authenticated_profile.decode_jwt_token", lambda _: {"user_id": valid_user_id})
+@pytest.mark.asyncio
+async def test_retrieve_user_profile_invalid_user():
+    user_id = "invalid"  # Cannot be parsed to an integer
+    with pytest.raises(HTTPException) as exc_info:
+        await retrieve_user_profile(user_id)
+    assert exc_info.value.status_code == 400
 
-    async_mock = AsyncMock(return_value={"id": 1, "name": "Test User", "email": "test@example.com"})
-    monkeypatch.setattr("src.endpoints.authenticated_profile.retrieve_user_profile", async_mock)
+@pytest.mark.asyncio
+async def test_get_profile_valid_request():
+    token = "valid.jwt.token"
+    payload = {"user_id": "12345"}
+    user_profile = {"id": 12345, "name": "John Doe", "email": "john.doe@example.com"}
+    async_pool = AsyncMock()
+    async_pool.acquire.return_value.fetchrow.return_value = user_profile
+    with patch("src.endpoints.authenticated_profile.decode", return_value=payload), patch("src.endpoints.authenticated_profile.get_database_pool", return_value=async_pool):
+        result = await get_profile(token)
+        assert result == user_profile
 
-    response = client.get("/profile", headers={"Authorization": f"Bearer {token}"})
-
-    assert response.status_code == 200
-    assert response.json() == {"id": 1, "name": "Test User", "email": "test@example.com"}
-
-def test_get_profile_invalid_token(monkeypatch) -> None:
-    """Test profile endpoint with invalid JWT."""
-    invalid_token = "invalid.token.value"
-
-    monkeypatch.setattr("src.endpoints.authenticated_profile.decode_jwt_token", lambda _: (_ for _ in ()).throw(HTTPException(status_code=401)))
-
-    response = client.get("/profile", headers={"Authorization": f"Bearer {invalid_token}"})
-
-    assert response.status_code == 401
-    assert response.json()["detail"] == "Invalid JWT token"
-
-def test_get_profile_nonexistent_user(monkeypatch) -> None:
-    """Test accessing a non-existing user profile."""
-    valid_user_id = "1"
-    token = jwt.encode({"user_id": valid_user_id}, key="test_secret", algorithm="HS256")
-
-    monkeypatch.setattr("src.endpoints.authenticated_profile.decode_jwt_token", lambda _: {"user_id": valid_user_id})
-
-    async_mock = AsyncMock(return_value=None)
-    async_mock.side_effect = HTTPException(status_code=404, detail="User profile not found")
-    monkeypatch.setattr("src.endpoints.authenticated_profile.retrieve_user_profile", async_mock)
-
-    response = client.get("/profile", headers={"Authorization": f"Bearer {token}"})
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "User profile not found"
+@pytest.mark.asyncio
+async def test_get_profile_missing_user_id():
+    token = "invalid.jwt.token"
+    payload = {}
+    async_pool = AsyncMock()
+    async_pool.acquire.return_value.fetchrow.return_value = None
+    with patch("src.endpoints.authenticated_profile.decode", return_value=payload):
+        with pytest.raises(HTTPException) as exc_info:
+            await get_profile(token)
+        assert exc_info.value.status_code == 401

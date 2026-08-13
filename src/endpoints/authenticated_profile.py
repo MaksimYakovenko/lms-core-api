@@ -45,13 +45,13 @@ async def retrieve_user_profile(user_id: str) -> dict[str, str | int | None]:
         result = await conn.fetchrow(user_query, int(user_id))
         if result is None:
             raise HTTPException(status_code=404, detail="User profile not found")
-        return dict(result)
+        return {k: v for k, v in result.items()}
 
 @router.get("/profile", response_model=dict[str, str | int | None])
 async def get_profile(token: str = Depends(oauth2_scheme)) -> dict[str, str | int | None]:
     """Retrieve authenticated user's profile."""
     payload = decode_jwt_token(token)
     user_id = payload.get("user_id")
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Missing 'user_id' in token")
+    if not isinstance(user_id, str):
+        raise HTTPException(status_code=401, detail="Missing or invalid 'user_id' in token")
     return await retrieve_user_profile(user_id)
