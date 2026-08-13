@@ -1,0 +1,1461 @@
+{
+  "task_id": "a25b8ff7-830d-4d02-a044-136d0b99679c",
+  "passed": true,
+  "total": 56,
+  "failed": 0,
+  "skipped": false,
+  "skip_reason": "",
+  "contract": {
+    "title": "LMS Core API",
+    "version": "1.0.0",
+    "openapi_version": "3.1.0",
+    "base_url": null,
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/auth/sign-in",
+        "operation_id": "sign_in_auth_sign_in_post",
+        "summary": "Sign In",
+        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "POST",
+        "path": "/auth/sign-up",
+        "operation_id": "sign_up_auth_sign_up_post",
+        "summary": "Sign Up",
+        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/auth/captcha",
+        "operation_id": "get_captcha_auth_captcha_get",
+        "summary": "Get Captcha",
+        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": []
+      },
+      {
+        "method": "POST",
+        "path": "/auth/refresh",
+        "operation_id": "refresh_token_auth_refresh_post",
+        "summary": "Refresh Token",
+        "description": "",
+        "tags": [
+          "Auth"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/appointments/get_appointments",
+        "operation_id": "get_appointments_appointments_get_appointments_get",
+        "summary": "Get Appointments",
+        "description": "",
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/news",
+        "operation_id": "get_news_list_news_get",
+        "summary": "Get News List",
+        "description": "",
+        "tags": [
+          "News"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/news/{id}",
+        "operation_id": "get_news_item_news__id__get",
+        "summary": "Get News Item",
+        "description": "",
+        "tags": [
+          "News"
+        ],
+        "parameters": [
+          {
+            "name": "news_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "News Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/news/parse/save",
+        "operation_id": "parse_and_save_news_news_parse_save_post",
+        "summary": "Parse And Save News",
+        "description": "",
+        "tags": [
+          "News"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/users/me",
+        "operation_id": "get_current_user_info_users_me_get",
+        "summary": "Get Current User Info",
+        "description": "",
+        "tags": [
+          "Users"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/admins/create_admin",
+        "operation_id": "create_admin_admins_create_admin_post",
+        "summary": "Create Admin",
+        "description": "",
+        "tags": [
+          "Admins"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/admins/get_admins",
+        "operation_id": "get_admins_admins_get_admins_get",
+        "summary": "Get Admins",
+        "description": "",
+        "tags": [
+          "Admins"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/admins/update_admin",
+        "operation_id": "update_admin_admins_update_admin_put",
+        "summary": "Update Admin",
+        "description": "",
+        "tags": [
+          "Admins"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/admins/delete_admin/{id}",
+        "operation_id": "delete_admin_admins_delete_admin__id__delete",
+        "summary": "Delete Admin",
+        "description": "",
+        "tags": [
+          "Admins"
+        ],
+        "parameters": [
+          {
+            "name": "admin_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Admin Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/teachers/create_teacher",
+        "operation_id": "create_teacher_teachers_create_teacher_post",
+        "summary": "Create Teacher",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/teachers/get_teachers",
+        "operation_id": "get_teachers_teachers_get_teachers_get",
+        "summary": "Get Teachers",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/teachers/update_teacher/{id}",
+        "operation_id": "update_teacher_teachers_update_teacher__id__put",
+        "summary": "Update Teacher",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/teachers/assign_to_groups",
+        "operation_id": "assign_student_to_group_teachers_assign_to_groups_put",
+        "summary": "Assign Student To Group",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/teachers/assign_to_subjects",
+        "operation_id": "assign_teacher_to_subjects_teachers_assign_to_subjects_put",
+        "summary": "Assign Teacher To Subjects",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/teachers/delete_teacher/{id}",
+        "operation_id": "delete_teacher_teachers_delete_teacher__id__delete",
+        "summary": "Delete Teacher",
+        "description": "",
+        "tags": [
+          "Teachers"
+        ],
+        "parameters": [
+          {
+            "name": "teacher_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Teacher Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/students/get_students",
+        "operation_id": "get_students_students_get_students_get",
+        "summary": "Get Students",
+        "description": "",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/students/delete_student/{id}",
+        "operation_id": "delete_student_students_delete_student__id__delete",
+        "summary": "Delete Student",
+        "description": "",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [
+          {
+            "name": "student_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Student Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/students/update_student",
+        "operation_id": "update_student_students_update_student_put",
+        "summary": "Update Student",
+        "description": "",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/students/assign_to_group",
+        "operation_id": "assign_student_to_group_students_assign_to_group_put",
+        "summary": "Assign Student To Group",
+        "description": "",
+        "tags": [
+          "Students"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/groups/my",
+        "operation_id": "get_my_groups_groups_my_get",
+        "summary": "Get My Groups",
+        "description": "",
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/groups/get_groups",
+        "operation_id": "get_groups_groups_get_groups_get",
+        "summary": "Get Groups",
+        "description": "",
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/groups/create_group",
+        "operation_id": "create_group_groups_create_group_post",
+        "summary": "Create Group",
+        "description": "",
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "PUT",
+        "path": "/groups/update_group/{group_id}",
+        "operation_id": "update_group_groups_update_group__group_id__put",
+        "summary": "Update Group",
+        "description": "",
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "DELETE",
+        "path": "/groups/delete_group/{group_id}",
+        "operation_id": "delete_group_groups_delete_group__group_id__delete",
+        "summary": "Delete Group",
+        "description": "",
+        "tags": [
+          "Groups"
+        ],
+        "parameters": [
+          {
+            "name": "group_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Group Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/subjects/my",
+        "operation_id": "get_my_subjects_subjects_my_get",
+        "summary": "Get My Subjects",
+        "description": "",
+        "tags": [
+          "Subjects"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/subjects/get_subjects",
+        "operation_id": "get_students_subjects_get_subjects_get",
+        "summary": "Get Students",
+        "description": "",
+        "tags": [
+          "Subjects"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/subjects/create_subject",
+        "operation_id": "create_subject_subjects_create_subject_post",
+        "summary": "Create Subject",
+        "description": "",
+        "tags": [
+          "Subjects"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/subjects/update_subject",
+        "operation_id": "update_student_subjects_update_subject_put",
+        "summary": "Update Student",
+        "description": "",
+        "tags": [
+          "Subjects"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/subjects/delete_subject/{id}",
+        "operation_id": "delete_subject_subjects_delete_subject__id__delete",
+        "summary": "Delete Subject",
+        "description": "",
+        "tags": [
+          "Subjects"
+        ],
+        "parameters": [
+          {
+            "name": "subject_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Subject Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/classrooms/get_classrooms",
+        "operation_id": "get_classrooms_classrooms_get_classrooms_get",
+        "summary": "Get Classrooms",
+        "description": "",
+        "tags": [
+          "Classrooms"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": []
+      },
+      {
+        "method": "POST",
+        "path": "/classrooms/create_classroom",
+        "operation_id": "create_classroom_classrooms_create_classroom_post",
+        "summary": "Create Classroom",
+        "description": "",
+        "tags": [
+          "Classrooms"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/classrooms/delete_classroom/{id}",
+        "operation_id": "delete_classroom_classrooms_delete_classroom__id__delete",
+        "summary": "Delete Classroom",
+        "description": "",
+        "tags": [
+          "Classrooms"
+        ],
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Classroom Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/classrooms/update_classroom",
+        "operation_id": "update_classroom_classrooms_update_classroom_put",
+        "summary": "Update Classroom",
+        "description": "",
+        "tags": [
+          "Classrooms"
+        ],
+        "parameters": [
+          {
+            "name": "classroom_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Classroom Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals/my",
+        "operation_id": "get_my_journals_journals_my_get",
+        "summary": "Get My Journals",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals",
+        "operation_id": "get_journals_journals_get",
+        "summary": "Get Journals",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/journals",
+        "operation_id": "create_journal_journals_post",
+        "summary": "Create Journal",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "201",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals/{journal_id}",
+        "operation_id": "get_journal_journals__journal_id__get",
+        "summary": "Get Journal",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/journals/{journal_id}",
+        "operation_id": "delete_journal_journals__journal_id__delete",
+        "summary": "Delete Journal",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals/{journal_id}/export",
+        "operation_id": "export_journal_journals__journal_id__export_get",
+        "summary": "Export Journal",
+        "description": "",
+        "tags": [
+          "Journals"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": []
+      },
+      {
+        "method": "GET",
+        "path": "/lessons/get_lesson_types",
+        "operation_id": "get_lesson_types_lessons_get_lesson_types_get",
+        "summary": "Get Lesson Types",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/lessons/get_lesson_periods",
+        "operation_id": "get_lesson_periods_lessons_get_lesson_periods_get",
+        "summary": "Get Lesson Periods",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/lessons/my",
+        "operation_id": "get_my_lessons_lessons_my_get",
+        "summary": "Get My Lessons",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "POST",
+        "path": "/journals/{journal_id}/lessons",
+        "operation_id": "add_lesson_journals__journal_id__lessons_post",
+        "summary": "Add Lesson",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "201",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals/{journal_id}/lessons",
+        "operation_id": "get_lessons_journals__journal_id__lessons_get",
+        "summary": "Get Lessons",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/journals/{journal_id}/lessons/{lesson_id}",
+        "operation_id": "update_lesson_journals__journal_id__lessons__lesson_id__put",
+        "summary": "Update Lesson",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          },
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/journals/{journal_id}/lessons/{lesson_id}",
+        "operation_id": "delete_lesson_journals__journal_id__lessons__lesson_id__delete",
+        "summary": "Delete Lesson",
+        "description": "",
+        "tags": [
+          "Lessons"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          },
+          {
+            "name": "lesson_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Lesson Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/journals/{journal_id}/grades",
+        "operation_id": "upsert_grade_journals__journal_id__grades_put",
+        "summary": "Upsert Grade",
+        "description": "Виставити або оновити одну оцінку (upsert)",
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/journals/{journal_id}/grades",
+        "operation_id": "get_grades_journals__journal_id__grades_get",
+        "summary": "Get Grades",
+        "description": "Отримати всі оцінки журналу",
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/journals/{journal_id}/grades/bulk",
+        "operation_id": "bulk_upsert_grades_journals__journal_id__grades_bulk_put",
+        "summary": "Bulk Upsert Grades",
+        "description": "Масове виставлення оцінок",
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          }
+        ],
+        "request_body_required": true,
+        "request_body_content_types": [
+          "application/json"
+        ],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "DELETE",
+        "path": "/journals/{journal_id}/grades/{grade_id}",
+        "operation_id": "delete_grade_journals__journal_id__grades__grade_id__delete",
+        "summary": "Delete Grade",
+        "description": "Очистити оцінку",
+        "tags": [
+          "Grades"
+        ],
+        "parameters": [
+          {
+            "name": "journal_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Journal Id"
+            }
+          },
+          {
+            "name": "grade_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Grade Id"
+            }
+          }
+        ],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200",
+          "422"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/total_count",
+        "operation_id": "get_total_count_total_count_get",
+        "summary": "Get Total Count",
+        "description": "",
+        "tags": [
+          "Total Count"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "operation_id": "health_health_get",
+        "summary": "Health",
+        "description": "",
+        "tags": [
+          "Health"
+        ],
+        "parameters": [],
+        "request_body_required": false,
+        "request_body_content_types": [],
+        "response_codes": [
+          "200"
+        ],
+        "security": []
+      }
+    ],
+    "source": "https://lms-core-api-production.up.railway.app/openapi.json"
+  },
+  "failures": [],
+  "iteration": 1,
+  "generated_files": [
+    "tests/integration/conftest.py",
+    "tests/integration/test_openapi_smoke.py",
+    "tests/e2e/conftest.py",
+    "tests/e2e/test_openapi_flows.py"
+  ],
+  "report_files": []
+}
