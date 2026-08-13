@@ -1,59 +1,50 @@
 from __future__ import annotations
 
-## Import Statements
 from datetime import datetime, timedelta
 from typing import Callable
-from fastapi import Header, HTTPException
-from fastapi.middleware import Middleware
-from fastapi.middleware.trustedhost import TrustedHostMiddleware
-import logging
-import asyncio
+from fastapi import HTTPException, Request
+from fastapi.middleware.base import BaseHTTPMiddleware
 from collections import defaultdict
+import logging
 
-## Logger Configuration
 logger = logging.getLogger("security")
 
+# Helper to validate tokens
 def is_valid_token(token: str) -> bool:
-    """Simple token validation example."""
+    # Example valid token check
     return token == "VALID_TOKEN"
 
-async def fake_activity_log(message: str) -> None:
-    """Log the given message asynchronously."""
-    logger.info(message)
+# Async logging function
+async def log_unauthorized_access(attempt_info: str) -> None:
+    """Logs unauthorized access attempts."""
+    logger.warning(attempt_info)
 
-def obtain_current_time() -> datetime:
-    """Retrieve the current timestamp."""
-    return datetime.utcnow()
+class SecurityMiddleware(BaseHTTPMiddleware):
+    """Custom security middleware to handle token validation and rate limiting."""
 
-## Security Middleware
-def create_security_middleware() -> Middleware:
-    # Rate limiting configuration
-    requests_mapping: defaultdict[str, list[datetime]] = defaultdict(list)
-    request_limit: int = 5
-    time_frame: timedelta = timedelta(minutes=1)
+    RATE_LIMIT: int = 5
+    TIME_FRAME: timedelta = timedelta(minutes=1)
 
-    async def security_middleware(request, call_next):
-        # Extract token from authorization header, if present
-        authorization: str = request.headers.get("authorization", "")
-        token = authorization.replace("Bearer ", "")
-        ip_address: str = request.client.host
+    def __init__(self, app):
+        super().__init__(app)
+        self.requests_mapping: defaultdict[str, list[datetime]] = defaultdict(list)
 
-        # Rate limit logic
-        now = obtain_current_time()
-        requests_mapping[ip_address] = [req for req in requests_mapping[ip_address] if req > now - time_frame]
-        if len(requests_mapping[ip_address]) >= request_limit:
+    async def dispatch(self, request: Request, call_next):
+        # Obtain client IP and token from headers
+        token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+        ip_address = request.client.host
+        # Rate limiting logic
+        now = datetime.utcnow()
+        self.requests_mapping[ip_address] = [req_time for req_time in self.requests_mapping[ip_address] if req_time > now - self.TIME_FRAME]
+        if len(self.requests_mapping[ip_address]) >= self.RATE_LIMIT:
             raise HTTPException(status_code=429, detail="Rate limit exceeded.")
-        requests_mapping[ip_address].append(now)
-
-        # Token validation logic
+        self.requests_mapping[ip_address].append(now)
+        # Token validation
         if not is_valid_token(token):
-            await fake_activity_log(f"Unauthorized access attempt from {ip_address} with token={token!r}")
+            await log_unauthorized_access(f"Unauthorized access from {ip_address} with token={token!r}")
             raise HTTPException(status_code=401, detail="Invalid or expired token.")
-
+        # Proceed to the next middleware or endpoint
         response = await call_next(request)
         return response
-
-    return Middleware(create_security_middleware)
-
-## Integration
-middleware = create_security_middleware()
+# Integration section
+# Further integration into app as needed
