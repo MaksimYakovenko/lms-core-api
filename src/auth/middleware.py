@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from typing import Awaitable, Callable
+import os
 import jwt
-from fastapi import HTTPException, Request
+from fastapi import HTTPException, Request, Response
 
 def get_jwt_secret() -> str:
     """Retrieve the JWT secret from environment variable."""
-    import os
     secret = os.getenv("JWT_SECRET")
     if not secret:
         raise EnvironmentError("JWT_SECRET is not set in the environment variables.")
     return secret
 
 async def authentication_middleware(
-    request: Request, call_next: Callable[[Request], Awaitable] -> Response
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
 ) -> Response:
     """Middleware to authenticate incoming requests using JWT tokens."""
     token = request.headers.get("Authorization")
